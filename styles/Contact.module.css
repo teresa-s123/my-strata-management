@@ -1,0 +1,328 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .heading {
+    text-align: center;
+    color: #003366;
+    margin-bottom: 2rem;
+  }
+  
+  .contactGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .contactGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .contactInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .infoCard {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+  
+  .infoCard h2 {
+    color: #003366;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .contactMethods {
+    margin-top: 1.5rem;
+  }
+  
+  .contactMethod {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .methodIcon {
+    font-size: 1.8rem;
+    color: #0070f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #e3f2fd;
+    border-radius: 50%;
+  }
+  
+  .methodDetails h3 {
+    color: #003366;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .methodDetails p {
+    margin: 0.25rem 0;
+  }
+  
+  .hours {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 0.5rem !important;
+  }
+  
+  .emergencyInfo {
+    background-color: #f8d7da;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+  }
+  
+  .emergencyInfo h3 {
+    color: #721c24;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .mapContainer {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .mapContainer h3 {
+    color: #003366;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .map {
+    width: 100%;
+    height: 250px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  
+  .mapImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .directionsLink {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #0070f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .directionsLink:hover {
+    background-color: #0051a8;
+  }
+  
+  .formCard {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+  
+  .formCard h2 {
+    color: #003366;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .form {
+    margin-top: 1.5rem;
+  }
+  
+  .formRow {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .formRow {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+  
+  .formGroup {
+    flex: 1;
+    margin-bottom: 1.5rem;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .input,
+  .select,
+  .textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .input.error,
+  .textarea.error {
+    border-color: #dc3545;
+  }
+  
+  .errorText {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+  
+  .textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .submitButton {
+    padding: 0.75rem 2rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .submitButton:hover {
+    background-color: #0051a8;
+  }
+  
+  .successCard {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .successIcon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .successCard h2 {
+    color: #28a745;
+    margin-bottom: 1rem;
+  }
+  
+  .referenceBox {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+  
+  .referenceNumber {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0070f3;
+    margin: 0.5rem 0;
+  }
+  
+  .newMessageButton {
+    padding: 0.75rem 1.5rem;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+  }
+  
+  .newMessageButton:hover {
+    background-color: #5a6268;
+  }
+  
+  .faqSection {
+    margin-top: 3rem;
+  }
+  
+  .faqSection h2 {
+    color: #003366;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .faqItems {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .faqItems {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .faqItem {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .faqItem h3 {
+    color: #003366;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  
+  .faqItem a {
+    color: #0070f3;
+    text-decoration: none;
+  }
+  
+  .faqItem a:hover {
+    text-decoration: underline;
+  }
