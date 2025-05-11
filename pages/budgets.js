@@ -8,7 +8,7 @@ export default function Budgets() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('summary');
 
-  // Mock data for financial summary
+
   const financialSummary = {
     adminFund: {
       balance: 52480.75,
@@ -24,7 +24,7 @@ export default function Budgets() {
     }
   };
 
-  // Mock data for expenses by category
+
   const expenseCategories = [
     { name: 'Building Insurance', amount: 28500.00, percentage: 28.2 },
     { name: 'Cleaning & Waste Management', amount: 18200.75, percentage: 18.0 },
@@ -36,7 +36,7 @@ export default function Budgets() {
     { name: 'Admin & Professional Fees', amount: 3000.00, percentage: 3.0 }
   ];
 
-  // Mock data for quarterly levy reports
+
   const quarterlyReports = [
     { period: 'Q1 2025 (Jan-Mar)', report: '/documents/financial/q1-2025-report.pdf', date: '2025-04-15' },
     { period: 'Q4 2024 (Oct-Dec)', report: '/documents/financial/q4-2024-report.pdf', date: '2025-01-15' },
@@ -44,7 +44,7 @@ export default function Budgets() {
     { period: 'Q2 2024 (Apr-Jun)', report: '/documents/financial/q2-2024-report.pdf', date: '2024-07-15' }
   ];
 
-  // Mock data for capital works projects
+
   const capitalProjects = [
     { 
       name: 'Swimming Pool Renovation',
@@ -96,7 +96,7 @@ export default function Budgets() {
   const handleLogin = (e) => {
     e.preventDefault();
     
-    // Simple mock authentication
+
     if (loginData.username === 'committee' && loginData.password === 'password123') {
       setIsLoggedIn(true);
       setError('');

@@ -1,10 +1,9 @@
-// /api/log-maintenance.js
 export const config = {
     runtime: 'edge'
   };
   
   export default async function handler(req) {
-    // Only accept POST requests
+
     if (req.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
@@ -13,10 +12,10 @@ export const config = {
     }
   
     try {
-      // Parse the request body
+ 
       const data = await req.json();
       
-      // Validate required fields
+
       if (!data.unitNumber || !data.description || !data.requestType) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), {
           status: 400,
@@ -24,16 +23,12 @@ export const config = {
         });
       }
       
-      // Generate a request ID
+
       const requestId = 'MR' + Math.floor(10000 + Math.random() * 90000);
       
-      // Timestamp the request
+
       const timestamp = new Date().toISOString();
-      
-      // In a real implementation, you would store this in a database
-      // For now, we'll just return the generated ID and confirmation
-      
-      // Determine priority level and expected response time
+
       let responseTime;
       switch (data.priority) {
         case 'emergency':
@@ -56,7 +51,7 @@ export const config = {
         message: `Your maintenance request has been logged. Expected response time: ${responseTime}`,
         expectedResponse: responseTime
       }), {
-        status: 201, // Created
+        status: 201, 
         headers: { 'Content-Type': 'application/json' }
       });
       

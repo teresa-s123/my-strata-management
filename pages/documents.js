@@ -9,7 +9,7 @@ export default function Documents() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // Mock data for documents
+
   const documents = [
     { id: 1, name: 'Insurance Certificate 2025', category: 'Insurance', date: '2025-01-15', file: '/documents/insurance-certificate-2025.pdf' },
     { id: 2, name: 'Annual Financial Report 2024', category: 'Finance', date: '2024-12-10', file: '/documents/financial-report-2024.pdf' },
@@ -29,8 +29,7 @@ export default function Documents() {
   const handleLogin = (e) => {
     e.preventDefault();
     
-    // Simple mock authentication
-    // In a real app, this would validate against a database
+
     if (loginData.unitNumber && loginData.password === 'password123') {
       setIsLoggedIn(true);
       setError('');
@@ -44,7 +43,7 @@ export default function Documents() {
     setLoginData({ unitNumber: '', password: '' });
   };
 
-  // Group documents by category
+
   const documentsByCategory = documents.reduce((acc, doc) => {
     if (!acc[doc.category]) {
       acc[doc.category] = [];

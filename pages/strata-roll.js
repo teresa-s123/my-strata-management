@@ -8,7 +8,7 @@ export default function StrataRoll() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock data for strata roll
+
   const owners = [
     { unitNumber: '101', name: 'John Smith', email: 'john.smith@example.com', phone: '0412 345 678', entitlement: 10 },
     { unitNumber: '102', name: 'Sarah Johnson', email: 'sarah.j@example.com', phone: '0423 456 789', entitlement: 8 },
@@ -47,7 +47,7 @@ export default function StrataRoll() {
     setLoginData({ username: '', password: '' });
   };
 
-  // Filter owners based on search term
+
   const filteredOwners = owners.filter(owner => 
     owner.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

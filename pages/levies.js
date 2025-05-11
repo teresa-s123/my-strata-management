@@ -17,12 +17,12 @@ export default function Levies() {
     cvv: '',
     amount: 0
   });
-  // Add new state for levy status
+
   const [levyStatus, setLevyStatus] = useState(null);
   const [statusError, setStatusError] = useState('');
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
-  // Mock data for levy notices
+
   const levyNotices = [
     {
       id: 1,
@@ -72,7 +72,7 @@ export default function Levies() {
     }
   ];
 
-  // Function to check levy status
+
   const checkLevyStatus = async (unitNumber) => {
     try {
       setIsCheckingStatus(true);
@@ -96,7 +96,7 @@ export default function Levies() {
     }
   };
   
-  // Call this function when logged in
+
   useEffect(() => {
     if (isLoggedIn && loginData.unitNumber) {
       checkLevyStatus(loginData.unitNumber);
@@ -111,7 +111,7 @@ export default function Levies() {
   const handleLogin = (e) => {
     e.preventDefault();
     
-    // Simple mock authentication
+
     if (loginData.unitNumber && loginData.password === 'password123') {
       setIsLoggedIn(true);
       setError('');
@@ -134,8 +134,7 @@ export default function Levies() {
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
-    // In a real app, this would process the payment via a payment gateway
-    // For now, simulate a successful payment
+ 
     setPaymentSuccess(true);
   };
 

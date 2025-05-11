@@ -8,45 +8,45 @@ export default function FormExample() {
   const [postResults, setPostResults] = useState(null);
   const [postError, setPostError] = useState(null);
 
-  // Handle form submission using GET method
+
   const handleGetSubmit = async (e) => {
     e.preventDefault();
     
-    // Get form data
+
     const formData = new FormData(e.target);
     const category = formData.get('category');
     const limit = formData.get('limit');
     
-    // Build query string
+
     const queryParams = new URLSearchParams();
     if (category) queryParams.append('category', category);
     if (limit) queryParams.append('limit', limit);
     
     try {
-      // Make GET request to the API
+
       const response = await fetch(`/api/example?${queryParams.toString()}`);
       const data = await response.json();
       
-      // Update state with results
+
       setGetResults(data);
     } catch (error) {
       console.error('Error making GET request:', error);
     }
   };
 
-  // Handle form submission using POST method
+
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     setPostError(null);
     
-    // Get form data
+
     const formData = new FormData(e.target);
     const name = formData.get('name');
     const category = formData.get('category');
     const file = formData.get('file');
     
     try {
-      // Make POST request to the API
+
       const response = await fetch('/api/example', {
         method: 'POST',
         headers: {
@@ -55,7 +55,7 @@ export default function FormExample() {
         body: JSON.stringify({
           name,
           category,
-          file: file || '/documents/example.pdf', // Default file path if none selected
+          file: file || '/documents/example.pdf', 
         }),
       });
       
@@ -65,7 +65,7 @@ export default function FormExample() {
         setPostError(data.message || 'An error occurred while processing your request');
         setPostResults(null);
       } else {
-        // Update state with results
+
         setPostResults(data);
         setPostError(null);
       }

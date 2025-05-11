@@ -20,7 +20,7 @@ export default function Maintenance() {
   const [submitted, setSubmitted] = useState(false);
   const [requestId, setRequestId] = useState('');
   const [errors, setErrors] = useState({});
-  // Add new state for API response
+
   const [responseMessage, setResponseMessage] = useState('');
   const [expectedResponse, setExpectedResponse] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +53,7 @@ export default function Maintenance() {
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     
-    // Handle file inputs separately
+
     if (type === 'file') {
       setFormData(prev => ({
         ...prev,
@@ -66,7 +66,7 @@ export default function Maintenance() {
       }));
     }
     
-    // Clear error when field is edited
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -95,7 +95,7 @@ export default function Maintenance() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -105,7 +105,7 @@ export default function Maintenance() {
     try {
       setIsSubmitting(true);
       
-      // Call the edge function API
+
       const response = await fetch('/api/log-maintenance', {
         method: 'POST',
         headers: {
@@ -121,12 +121,12 @@ export default function Maintenance() {
       
       const data = await response.json();
       
-      // Use the response data
+
       setRequestId(data.requestId);
       setResponseMessage(data.message);
       setExpectedResponse(data.expectedResponse);
       
-      // Show success message
+
       setSubmitted(true);
       
     } catch (error) {

@@ -15,7 +15,6 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState('');
-  // Add new state for emergency contacts
   const [emergencyContacts, setEmergencyContacts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +28,7 @@ export default function Contact() {
     { value: 'other', label: 'Other' }
   ];
 
-  // Fetch emergency contacts when component mounts
+
   useEffect(() => {
     async function fetchEmergencyContacts() {
       try {
@@ -54,7 +53,7 @@ export default function Contact() {
       [name]: value
     }));
     
-    // Clear error when field is edited
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -83,21 +82,20 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate form
+
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
       return;
     }
     
-    // In a real app, this would submit the form data to a server
-    // For now, we'll simulate a successful submission
+
     
-    // Generate a reference number
+
     const newReferenceNumber = 'REF' + Math.floor(100000 + Math.random() * 900000);
     setReferenceNumber(newReferenceNumber);
     
-    // Show success message
+
     setSubmitted(true);
   };
 

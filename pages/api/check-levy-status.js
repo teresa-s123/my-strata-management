@@ -1,10 +1,10 @@
-// /api/check-levy-status.js
+
 export const config = {
     runtime: 'edge'
   };
   
   export default async function handler(req) {
-    // Only allow GET requests
+
     if (req.method !== 'GET') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
@@ -12,7 +12,7 @@ export const config = {
       });
     }
   
-    // Parse the URL to get query parameters
+
     const { searchParams } = new URL(req.url);
     const unitNumber = searchParams.get('unit');
     

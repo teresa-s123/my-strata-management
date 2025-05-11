@@ -1,13 +1,12 @@
-// /api/emergency-contact.js
 export const config = {
     runtime: 'edge'
   };
   
   export default function handler(req) {
-    // Get user's location from headers if available
+
     const countryCode = req.headers.get('x-vercel-ip-country') || 'AU';
     
-    // Different emergency services based on location
+
     const emergencyContacts = {
       'AU': {
         'phone': '000',
@@ -19,10 +18,10 @@ export const config = {
       }
     };
   
-    // Get the appropriate contact info
+
     const contactInfo = emergencyContacts[countryCode] || emergencyContacts['default'];
     
-    // Return emergency contact JSON
+
     return new Response(
       JSON.stringify({
         emergencyServices: contactInfo.phone,
@@ -33,7 +32,7 @@ export const config = {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'max-age=60, s-maxage=60' // Cache for 1 minute
+          'Cache-Control': 'max-age=60, s-maxage=60' 
         }
       }
     );

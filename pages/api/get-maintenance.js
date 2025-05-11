@@ -1,10 +1,8 @@
-// /api/get-maintenance.js
 export const config = {
     runtime: 'edge'
   };
   
-  // This would normally be a database
-  // For demo purposes, we'll use a mock array of sample maintenance requests
+
   const sampleRequests = [
     {
       requestId: 'MR12345',
@@ -33,7 +31,7 @@ export const config = {
   ];
   
   export default async function handler(req) {
-    // Only accept GET requests
+
     if (req.method !== 'GET') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
@@ -42,11 +40,10 @@ export const config = {
     }
   
     try {
-      // Get URL object to parse query parameters
+
       const url = new URL(req.url);
       const requestId = url.searchParams.get('requestId');
-  
-      // If a specific requestId is provided, return that request
+
       if (requestId) {
         const request = sampleRequests.find(req => req.requestId === requestId);
         
@@ -69,7 +66,7 @@ export const config = {
         });
       }
       
-      // Return all requests
+
       return new Response(JSON.stringify({
         success: true,
         count: sampleRequests.length,
