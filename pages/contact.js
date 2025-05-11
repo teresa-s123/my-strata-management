@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Contact.module.css';
 
@@ -15,6 +15,9 @@ export default function Contact() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState('');
+  // Add new state for emergency contacts
+  const [emergencyContacts, setEmergencyContacts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const categories = [
     { value: 'general', label: 'General Inquiry' },
@@ -25,6 +28,24 @@ export default function Contact() {
     { value: 'levies', label: 'Levy Payment' },
     { value: 'other', label: 'Other' }
   ];
+
+  // Fetch emergency contacts when component mounts
+  useEffect(() => {
+    async function fetchEmergencyContacts() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/emergency-contact');
+        const data = await response.json();
+        setEmergencyContacts(data);
+      } catch (error) {
+        console.error('Failed to fetch emergency contacts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchEmergencyContacts();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,8 +147,20 @@ export default function Contact() {
               
               <div className={styles.emergencyInfo}>
                 <h3>Emergency Contact</h3>
-                <p>For urgent issues outside of business hours, please call our emergency hotline at <strong>0400 123 456</strong>.</p>
-                <p>For life-threatening emergencies, please call <strong>000</strong>.</p>
+                {isLoading ? (
+                  <p>Loading emergency contact information...</p>
+                ) : emergencyContacts ? (
+                  <>
+                    <p>For urgent issues outside of business hours, please call our emergency hotline at <strong>{emergencyContacts.buildingManager}</strong>.</p>
+                    <p>For life-threatening emergencies, please call <strong>{emergencyContacts.emergencyServices}</strong>.</p>
+                    <p className={styles.emergencyMessage}>{emergencyContacts.message}</p>
+                  </>
+                ) : (
+                  <>
+                    <p>For urgent issues outside of business hours, please call our emergency hotline at <strong>0400 123 456</strong>.</p>
+                    <p>For life-threatening emergencies, please call <strong>000</strong>.</p>
+                  </>
+                )}
               </div>
             </div>
             

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Levies.module.css';
 
@@ -17,6 +17,10 @@ export default function Levies() {
     cvv: '',
     amount: 0
   });
+  // Add new state for levy status
+  const [levyStatus, setLevyStatus] = useState(null);
+  const [statusError, setStatusError] = useState('');
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
   // Mock data for levy notices
   const levyNotices = [
@@ -68,6 +72,37 @@ export default function Levies() {
     }
   ];
 
+  // Function to check levy status
+  const checkLevyStatus = async (unitNumber) => {
+    try {
+      setIsCheckingStatus(true);
+      setStatusError('');
+      
+      const response = await fetch(`/api/check-levy-status?unit=${unitNumber}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        setStatusError(errorData.error || 'Failed to fetch levy status');
+        return;
+      }
+      
+      const data = await response.json();
+      setLevyStatus(data);
+    } catch (error) {
+      console.error('Error checking levy status:', error);
+      setStatusError('Network error. Please try again.');
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  };
+  
+  // Call this function when logged in
+  useEffect(() => {
+    if (isLoggedIn && loginData.unitNumber) {
+      checkLevyStatus(loginData.unitNumber);
+    }
+  }, [isLoggedIn, loginData.unitNumber]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
@@ -89,6 +124,7 @@ export default function Levies() {
     setIsLoggedIn(false);
     setLoginData({ unitNumber: '', password: '' });
     setPaymentSuccess(false);
+    setLevyStatus(null);
   };
 
   const handlePaymentChange = (e) => {
@@ -399,6 +435,35 @@ export default function Levies() {
                     Logout
                   </button>
                 </div>
+                
+                {isCheckingStatus ? (
+                  <div className={styles.loadingStatus}>
+                    <p>Checking your levy status...</p>
+                  </div>
+                ) : statusError ? (
+                  <div className={styles.statusError}>
+                    <p>{statusError}</p>
+                    <button onClick={() => checkLevyStatus(loginData.unitNumber)} className={styles.retryButton}>
+                      Retry
+                    </button>
+                  </div>
+                ) : levyStatus && (
+                  <div className={styles.statusBox}>
+                    <h3>Levy Status</h3>
+                    {levyStatus.status === 'paid' ? (
+                      <div className={styles.paidStatus}>
+                        <p>Your current levy is <strong>PAID</strong>. Thank you!</p>
+                        <p>Last payment date: {levyStatus.lastPayment}</p>
+                      </div>
+                    ) : (
+                      <div className={styles.overdueStatus}>
+                        <p>Your levy payment is <strong>OVERDUE</strong>.</p>
+                        <p>Due date: {levyStatus.dueDate}</p>
+                        <p>Please make your payment as soon as possible to avoid late fees.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 <div className={styles.tabContainer}>
                   <div className={styles.tabs}>

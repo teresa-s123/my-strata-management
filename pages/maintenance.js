@@ -20,6 +20,10 @@ export default function Maintenance() {
   const [submitted, setSubmitted] = useState(false);
   const [requestId, setRequestId] = useState('');
   const [errors, setErrors] = useState({});
+  // Add new state for API response
+  const [responseMessage, setResponseMessage] = useState('');
+  const [expectedResponse, setExpectedResponse] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const requestTypes = [
     { value: 'repair', label: 'Repair' },
@@ -99,35 +103,37 @@ export default function Maintenance() {
     }
     
     try {
-      // In a real app, this would be an API call to save the data
-      // For now, we'll simulate a successful submission
+      setIsSubmitting(true);
       
-      // Generate a random request ID
-      const newRequestId = 'MR' + Math.floor(10000 + Math.random() * 90000);
-      setRequestId(newRequestId);
+      // Call the edge function API
+      const response = await fetch('/api/log-maintenance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit maintenance request');
+      }
+      
+      const data = await response.json();
+      
+      // Use the response data
+      setRequestId(data.requestId);
+      setResponseMessage(data.message);
+      setExpectedResponse(data.expectedResponse);
       
       // Show success message
       setSubmitted(true);
       
-      // Reset form after submission
-      // In a real app, you'd want to reset the form after the API call is successful
-      // setFormData({
-      //   unitNumber: '',
-      //   name: '',
-      //   email: '',
-      //   phone: '',
-      //   requestType: 'repair',
-      //   location: 'unit',
-      //   description: '',
-      //   preferredDate: '',
-      //   accessInstructions: '',
-      //   priority: 'normal',
-      //   photos: null
-      // });
-      
     } catch (error) {
       console.error("Error submitting maintenance request:", error);
-      alert("There was an error submitting your request. Please try again.");
+      alert(`There was an error submitting your request: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -341,8 +347,12 @@ export default function Maintenance() {
                 </div>
                 
                 <div className={styles.formActions}>
-                  <button type="submit" className={styles.submitButton}>
-                    Submit Request
+                  <button 
+                    type="submit" 
+                    className={styles.submitButton}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
                   </button>
                 </div>
               </form>
@@ -352,10 +362,10 @@ export default function Maintenance() {
           <div className={styles.successContainer}>
             <div className={styles.successMessage}>
               <h2>Request Submitted Successfully!</h2>
-              <p>Your maintenance request has been submitted and will be reviewed by our building manager.</p>
+              <p>{responseMessage || 'Your maintenance request has been submitted and will be reviewed by our building manager.'}</p>
               <p>Request ID: <strong>{requestId}</strong></p>
               <p>You will receive an email confirmation at <strong>{formData.email}</strong> with the details of your request.</p>
-              <p>We will contact you shortly to schedule the maintenance work.</p>
+              {expectedResponse && <p>Expected response time: <strong>{expectedResponse}</strong></p>}
               
               <div className={styles.summaryBox}>
                 <h3>Request Summary</h3>
