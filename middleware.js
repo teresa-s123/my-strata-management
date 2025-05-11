@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server';
 
 // Define protected paths that require authentication
 const protectedPaths = [
-  '/documents',
-  '/strata-roll',
-  '/levies',
-  '/api/maintenance',
-  '/api/levy-payment'
+  '/documents/:path*',
+    '/strata-roll/:path*',
+    '/levies/:path*',
+    '/budgets/:path*',
+    '/api/maintenance/:path*',
+    '/api/levy-payment/:path*',
+    '/api/admin/:path*',
 ];
 
 // Define admin-only paths
