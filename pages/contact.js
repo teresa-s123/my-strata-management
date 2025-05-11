@@ -136,8 +136,8 @@ export default function Contact() {
               <div className={styles.map}>
                 {/* In a real app, this would be a Google Maps or other map integration */}
                 <img 
-                  src="/images/map-placeholder.jpg" 
-                  alt="Map of Oceanview Apartments location" 
+                  src="/images/map-placeholder.png" 
+                  alt="Map of Oceanview Apartments location"
                   className={styles.mapImage}
                 />
               </div>
