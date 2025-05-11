@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Headers configuration
+
   async headers() {
     return [
       {
-        // Apply these headers to all routes
+
         source: "/(.*)",
         headers: [
           {
@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     ];
   },
   
-  // Redirects configuration
+
   async redirects() {
     return [
       {
@@ -28,10 +28,10 @@ const nextConfig: NextConfig = {
     ];
   },
   
-  // Other Next.js config options
+
   reactStrictMode: true,
   
-  // Environment variables that will be available at build time
+
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
   },
