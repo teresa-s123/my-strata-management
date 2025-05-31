@@ -1,99 +1,50 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/Levies.module.css';
-import { getLevyPayments, supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function Levies() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedUnit, setSelectedUnit] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [yearFilter, setYearFilter] = useState('2025');
-  const [units, setUnits] = useState([]);
 
   useEffect(() => {
-    async function loadData() {
+    async function loadPayments() {
       try {
-        setLoading(true);
+        console.log('Loading levy payments from database...');
         
-        // Load all payments
-        const { data: paymentsData, error: paymentsError } = await getLevyPayments();
-        if (paymentsError) throw paymentsError;
-        setPayments(paymentsData || []);
+        const { data, error } = await supabase
+          .from('levy_payments')
+          .select(`
+            *,
+            units (
+              unit_number,
+              unit_type
+            ),
+            owners (
+              first_name,
+              last_name,
+              email
+            )
+          `)
+          .order('due_date', { ascending: false });
 
-        // Load units for filter dropdown
-        const { data: unitsData, error: unitsError } = await supabase
-          .from('units')
-          .select('id, unit_number, unit_type')
-          .order('unit_number');
-        if (unitsError) throw unitsError;
-        setUnits(unitsData || []);
+        console.log('Database result:', { data, error });
 
+        if (error) {
+          throw error;
+        }
+
+        setPayments(data || []);
       } catch (err) {
-        console.error('Error loading levy data:', err);
+        console.error('Error loading payments:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
 
-    loadData();
+    loadPayments();
   }, []);
-
-  // Filter payments based on selected criteria
-  const filteredPayments = payments.filter(payment => {
-    const matchesUnit = selectedUnit === 'all' || 
-      (payment.units && payment.units.unit_number === selectedUnit);
-    
-    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-    
-    const matchesYear = yearFilter === 'all' || payment.year.toString() === yearFilter;
-    
-    return matchesUnit && matchesStatus && matchesYear;
-  });
-
-  // Calculate statistics
-  const getStats = () => {
-    const totalPayments = filteredPayments.length;
-    const paidPayments = filteredPayments.filter(p => p.status === 'paid');
-    const overduePayments = filteredPayments.filter(p => p.status === 'overdue');
-    const pendingPayments = filteredPayments.filter(p => p.status === 'pending');
-    
-    const totalAmount = filteredPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    const paidAmount = paidPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    const outstandingAmount = totalAmount - paidAmount;
-
-    return {
-      totalPayments,
-      paidCount: paidPayments.length,
-      overdueCount: overduePayments.length,
-      pendingCount: pendingPayments.length,
-      totalAmount,
-      paidAmount,
-      outstandingAmount,
-      collectionRate: totalAmount > 0 ? (paidAmount / totalAmount * 100).toFixed(1) : 0
-    };
-  };
-
-  const stats = getStats();
-
-  const getStatusBadge = (status) => {
-    const badges = {
-      'paid': { class: 'statusPaid', text: 'Paid', icon: '✅' },
-      'pending': { class: 'statusPending', text: 'Pending', icon: '⏳' },
-      'overdue': { class: 'statusOverdue', text: 'Overdue', icon: '⚠️' },
-      'partial': { class: 'statusPartial', text: 'Partial', icon: '📊' }
-    };
-    
-    const badge = badges[status] || { class: 'statusPending', text: status, icon: '❓' };
-    
-    return (
-      <span className={`${styles.statusBadge} ${styles[badge.class]}`}>
-        {badge.icon} {badge.text}
-      </span>
-    );
-  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-AU', {
@@ -107,14 +58,44 @@ export default function Levies() {
     return new Date(dateString).toLocaleDateString('en-AU');
   };
 
+  const getStatusBadge = (status) => {
+    const styles = {
+      'paid': { background: '#d4edda', color: '#155724' },
+      'pending': { background: '#fff3cd', color: '#856404' },
+      'overdue': { background: '#f8d7da', color: '#721c24' }
+    };
+    
+    const style = styles[status] || styles.pending;
+    
+    return (
+      <span style={{
+        ...style,
+        padding: '0.25rem 0.5rem',
+        borderRadius: '12px',
+        fontSize: '0.8rem',
+        fontWeight: 'bold'
+      }}>
+        {status.toUpperCase()}
+      </span>
+    );
+  };
+
+  // Calculate statistics
+  const stats = {
+    total: payments.length,
+    paid: payments.filter(p => p.status === 'paid').length,
+    pending: payments.filter(p => p.status === 'pending').length,
+    overdue: payments.filter(p => p.status === 'overdue').length,
+    totalAmount: payments.reduce((sum, p) => sum + (p.amount || 0), 0),
+    paidAmount: payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + (p.amount || 0), 0)
+  };
+
   if (loading) {
     return (
-      <Layout title="Levy Notices">
-        <div className={styles.container}>
-          <div className={styles.loading}>
-            <h2>Loading Levy Payment Data...</h2>
-            <p>Fetching payment records from database...</p>
-          </div>
+      <Layout title="Levy Payments">
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>Loading Levy Payment Data...</h2>
+          <p>Fetching payment records from Supabase database...</p>
         </div>
       </Layout>
     );
@@ -122,226 +103,148 @@ export default function Levies() {
 
   if (error) {
     return (
-      <Layout title="Levy Notices">
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <h2>❌ Error Loading Levy Data</h2>
-            <p>{error}</p>
-            <button onClick={() => window.location.reload()} className={styles.retryButton}>
-              Retry
-            </button>
-          </div>
+      <Layout title="Levy Payments">
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>❌ Error Loading Payment Data</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
       </Layout>
     );
   }
 
   return (
-    <Layout title="Levy Notices">
-      <div className={styles.container}>
-        <h1 className={styles.heading}>Levy Notices & Payments</h1>
+    <Layout title="Levy Payments">
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ color: '#003366', textAlign: 'center', marginBottom: '2rem' }}>
+          Levy Notices & Payment Tracking
+        </h1>
         
-        <div className={styles.instructions}>
-          <h2>Strata Levy Management</h2>
-          <p>Track levy payments, view outstanding amounts, and monitor collection rates for all units in Oceanview Apartments.</p>
-          <div className={styles.dbBadge}>
-            🗄️ Real-time data from Supabase database
-          </div>
+        <div style={{ 
+          background: '#e8f4f8', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginBottom: '2rem',
+          textAlign: 'center'
+        }}>
+          <strong>🗄️ Database Integration:</strong> Real-time payment data from Supabase database ({payments.length} records loaded)
         </div>
 
         {/* Statistics Dashboard */}
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <h3>Collection Rate</h3>
-            <div className={styles.statNumber}>{stats.collectionRate}%</div>
-            <div className={styles.statDetail}>of total levies collected</div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Collection Rate</h3>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#003366' }}>
+              {stats.totalAmount > 0 ? ((stats.paidAmount / stats.totalAmount) * 100).toFixed(1) : 0}%
+            </div>
           </div>
-          <div className={styles.statCard}>
-            <h3>Total Collected</h3>
-            <div className={styles.statNumber}>{formatCurrency(stats.paidAmount)}</div>
-            <div className={styles.statDetail}>{stats.paidCount} payments</div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Total Collected</h3>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#28a745' }}>
+              {formatCurrency(stats.paidAmount)}
+            </div>
           </div>
-          <div className={styles.statCard}>
-            <h3>Outstanding</h3>
-            <div className={styles.statNumber}>{formatCurrency(stats.outstandingAmount)}</div>
-            <div className={styles.statDetail}>{stats.pendingCount + stats.overdueCount} unpaid</div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Outstanding</h3>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc3545' }}>
+              {formatCurrency(stats.totalAmount - stats.paidAmount)}
+            </div>
           </div>
-          <div className={styles.statCard}>
-            <h3>Overdue</h3>
-            <div className={styles.statNumber}>{stats.overdueCount}</div>
-            <div className={styles.statDetail}>require attention</div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Overdue</h3>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#dc3545' }}>
+              {stats.overdue}
+            </div>
           </div>
-        </div>
-
-        {/* Filters */}
-        <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <label>Unit:</label>
-            <select
-              value={selectedUnit}
-              onChange={(e) => setSelectedUnit(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Units</option>
-              {units.map(unit => (
-                <option key={unit.id} value={unit.unit_number}>
-                  Unit {unit.unit_number} ({unit.unit_type})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <label>Status:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Statuses</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="overdue">Overdue</option>
-              <option value="partial">Partial</option>
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <label>Year:</label>
-            <select
-              value={yearFilter}
-              onChange={(e) => setYearFilter(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Years</option>
-              <option value="2025">2025</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-            </select>
-          </div>
-        </div>
-
-        <div className={styles.resultsInfo}>
-          Showing {filteredPayments.length} of {payments.length} levy records
         </div>
 
         {/* Payments Table */}
-        <div className={styles.tableContainer}>
-          <table className={styles.paymentsTable}>
+        <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Owner</th>
-                <th>Quarter</th>
-                <th>Amount</th>
-                <th>Due Date</th>
-                <th>Paid Date</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Late Fee</th>
-                <th>Actions</th>
+              <tr style={{ background: '#003366', color: 'white' }}>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Unit</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Owner</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Quarter</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Amount</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Due Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Paid Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {filteredPayments.map((payment) => {
-                const isOverdue = payment.status === 'overdue';
-                const daysOverdue = isOverdue && payment.due_date 
-                  ? Math.floor((new Date() - new Date(payment.due_date)) / (1000 * 60 * 60 * 24))
-                  : 0;
-
-                return (
-                  <tr key={payment.id} className={isOverdue ? styles.overdueRow : ''}>
-                    <td className={styles.unitCell}>
-                      {payment.units?.unit_number || 'N/A'}
-                    </td>
-                    <td className={styles.ownerCell}>
-                      {payment.owners ? (
-                        <div>
-                          <div className={styles.ownerName}>
-                            {payment.owners.first_name} {payment.owners.last_name}
-                          </div>
-                          <div className={styles.ownerEmail}>{payment.owners.email}</div>
+              {payments.map((payment, index) => (
+                <tr key={payment.id} style={{ 
+                  borderBottom: '1px solid #eee',
+                  background: index % 2 === 0 ? '#f8f9fa' : 'white'
+                }}>
+                  <td style={{ padding: '1rem', fontWeight: 'bold', color: '#003366' }}>
+                    {payment.units?.unit_number || 'N/A'}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {payment.owners ? (
+                      <div>
+                        <div style={{ fontWeight: '600' }}>
+                          {payment.owners.first_name} {payment.owners.last_name}
                         </div>
-                      ) : (
-                        'No owner data'
-                      )}
-                    </td>
-                    <td className={styles.quarterCell}>
-                      <div className={styles.quarter}>{payment.quarter}-{payment.year}</div>
-                    </td>
-                    <td className={styles.amountCell}>
-                      <div className={styles.amount}>{formatCurrency(payment.amount)}</div>
-                      {payment.late_fee > 0 && (
-                        <div className={styles.lateFee}>
-                          + {formatCurrency(payment.late_fee)} late fee
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                          {payment.owners.email}
                         </div>
-                      )}
-                    </td>
-                    <td className={styles.dateCell}>
-                      <div className={formatDate(payment.due_date)}>
-                        {formatDate(payment.due_date)}
                       </div>
-                      {isOverdue && (
-                        <div className={styles.overdueDays}>
-                          {daysOverdue} days overdue
-                        </div>
-                      )}
-                    </td>
-                    <td className={styles.dateCell}>
-                      {formatDate(payment.paid_date)}
-                    </td>
-                    <td className={styles.methodCell}>
-                      {payment.payment_method ? (
-                        <span className={styles.paymentMethod}>
-                          {payment.payment_method.replace('_', ' ').toUpperCase()}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className={styles.statusCell}>
-                      {getStatusBadge(payment.status)}
-                    </td>
-                    <td className={styles.feeCell}>
-                      {payment.late_fee > 0 ? formatCurrency(payment.late_fee) : '-'}
-                    </td>
-                    <td className={styles.actionsCell}>
-                      {payment.status === 'pending' && (
-                        <button className={styles.payButton}>
-                          Pay Now
-                        </button>
-                      )}
-                      {payment.status === 'overdue' && (
-                        <button className={styles.urgentButton}>
-                          Pay Urgent
-                        </button>
-                      )}
-                      {payment.status === 'paid' && (
-                        <button className={styles.receiptButton}>
-                          Receipt
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                    ) : (
+                      'No owner data'
+                    )}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{ fontWeight: 'bold' }}>
+                      {payment.quarter}-{payment.year}
+                    </span>
+                  </td>
+                  <td style={{ padding: '1rem', fontWeight: 'bold' }}>
+                    {formatCurrency(payment.amount)}
+                    {payment.late_fee > 0 && (
+                      <div style={{ fontSize: '0.8rem', color: '#dc3545' }}>
+                        + {formatCurrency(payment.late_fee)} late fee
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {formatDate(payment.due_date)}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {formatDate(payment.paid_date)}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {getStatusBadge(payment.status)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
-        {filteredPayments.length === 0 && (
-          <div className={styles.noResults}>
-            <h3>No levy records found</h3>
-            <p>Try adjusting your filter criteria.</p>
+        {payments.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
+            <h3>No payment records found</h3>
+            <p>The database might be empty or there's a connection issue.</p>
           </div>
         )}
 
-        <div className={styles.footer}>
-          <div className={styles.footerInfo}>
-            <p><strong>Database Integration:</strong> All levy payment data is stored and retrieved from Supabase in real-time</p>
-            <p><strong>Last Updated:</strong> {new Date().toLocaleString('en-AU')}</p>
-            <p><strong>Total Outstanding:</strong> {formatCurrency(stats.outstandingAmount)} across {stats.pendingCount + stats.overdueCount} unpaid levies</p>
-          </div>
+        <div style={{ 
+          background: '#f8f9fa', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginTop: '2rem',
+          textAlign: 'center',
+          fontSize: '0.9rem',
+          color: '#666'
+        }}>
+          <strong>Live Database Integration:</strong> Payment data from Supabase • Last updated: {new Date().toLocaleString()}
         </div>
       </div>
     </Layout>

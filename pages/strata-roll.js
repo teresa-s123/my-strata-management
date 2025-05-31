@@ -1,90 +1,54 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/StrataRoll.module.css';
-import { getUnitsWithOwners } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function StrataRoll() {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [sortBy, setSortBy] = useState('unit');
 
   useEffect(() => {
-    async function loadStrataRoll() {
+    async function loadUnits() {
       try {
-        setLoading(true);
-        const { data, error } = await getUnitsWithOwners();
+        console.log('Loading units from database...');
         
+        const { data, error } = await supabase
+          .from('units')
+          .select(`
+            *,
+            owners (
+              first_name,
+              last_name,
+              email,
+              phone
+            )
+          `)
+          .order('unit_number');
+
+        console.log('Database result:', { data, error });
+
         if (error) {
-          throw new Error(error.message);
+          throw error;
         }
-        
+
         setUnits(data || []);
       } catch (err) {
-        console.error('Error loading strata roll:', err);
+        console.error('Error loading units:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
 
-    loadStrataRoll();
+    loadUnits();
   }, []);
-
-  // Filter and sort units
-  const filteredAndSortedUnits = units
-    .filter(unit => {
-      const matchesSearch = 
-        unit.unit_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (unit.owners[0] && 
-          `${unit.owners[0].first_name} ${unit.owners[0].last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      
-      const matchesFilter = 
-        filterType === 'all' || 
-        unit.unit_type.toLowerCase().includes(filterType.toLowerCase());
-      
-      return matchesSearch && matchesFilter;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'unit':
-          return a.unit_number.localeCompare(b.unit_number);
-        case 'floor':
-          return a.floor_level - b.floor_level;
-        case 'owner':
-          const ownerA = a.owners[0] ? `${a.owners[0].last_name}, ${a.owners[0].first_name}` : '';
-          const ownerB = b.owners[0] ? `${b.owners[0].last_name}, ${b.owners[0].first_name}` : '';
-          return ownerA.localeCompare(ownerB);
-        case 'size':
-          return b.square_meters - a.square_meters;
-        default:
-          return 0;
-      }
-    });
-
-  const calculateTotalEntitlements = () => {
-    return units.reduce((total, unit) => total + (unit.square_meters || 0), 0);
-  };
-
-  const getUnitTypeStats = () => {
-    const stats = {};
-    units.forEach(unit => {
-      stats[unit.unit_type] = (stats[unit.unit_type] || 0) + 1;
-    });
-    return stats;
-  };
 
   if (loading) {
     return (
       <Layout title="Strata Roll">
-        <div className={styles.container}>
-          <div className={styles.loading}>
-            <h2>Loading Strata Roll...</h2>
-            <p>Fetching unit and owner information from database...</p>
-          </div>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>Loading Strata Roll...</h2>
+          <p>Fetching data from Supabase database...</p>
         </div>
       </Layout>
     );
@@ -93,14 +57,10 @@ export default function StrataRoll() {
   if (error) {
     return (
       <Layout title="Strata Roll">
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <h2>❌ Error Loading Strata Roll</h2>
-            <p>{error}</p>
-            <button onClick={() => window.location.reload()} className={styles.retryButton}>
-              Retry
-            </button>
-          </div>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>❌ Error Loading Data</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
       </Layout>
     );
@@ -108,179 +68,115 @@ export default function StrataRoll() {
 
   return (
     <Layout title="Strata Roll">
-      <div className={styles.container}>
-        <h1 className={styles.heading}>Strata Roll</h1>
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ color: '#003366', textAlign: 'center', marginBottom: '2rem' }}>
+          Strata Roll - Unit Owners Directory
+        </h1>
         
-        <div className={styles.instructions}>
-          <h2>Unit Owners & Entitlements</h2>
-          <p>Complete listing of all unit owners, contact details, and unit entitlements for Oceanview Apartments.</p>
-          <div className={styles.dbBadge}>
-            🗄️ Real-time data from Supabase database
-          </div>
+        <div style={{ 
+          background: '#e8f4f8', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginBottom: '2rem',
+          textAlign: 'center'
+        }}>
+          <strong>🗄️ Database Integration:</strong> Real-time data from Supabase database ({units.length} units loaded)
         </div>
 
-        {/* Statistics Dashboard */}
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <h3>Total Units</h3>
-            <div className={styles.statNumber}>{units.length}</div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Total Units</h3>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#003366' }}>{units.length}</div>
           </div>
-          <div className={styles.statCard}>
-            <h3>Total Floor Area</h3>
-            <div className={styles.statNumber}>{calculateTotalEntitlements().toFixed(0)} m²</div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Occupied</h3>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#003366' }}>
+              {units.filter(u => u.owners && u.owners.length > 0).length}
+            </div>
           </div>
-          <div className={styles.statCard}>
-            <h3>Occupied Units</h3>
-            <div className={styles.statNumber}>{units.filter(u => u.owners.length > 0).length}</div>
-          </div>
-          <div className={styles.statCard}>
-            <h3>Avg Unit Size</h3>
-            <div className={styles.statNumber}>
-              {units.length > 0 ? (calculateTotalEntitlements() / units.length).toFixed(0) : 0} m²
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Total Floor Area</h3>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#003366' }}>
+              {units.reduce((total, unit) => total + (unit.square_meters || 0), 0).toFixed(0)} m²
             </div>
           </div>
         </div>
 
-        {/* Unit Type Breakdown */}
-        <div className={styles.typeBreakdown}>
-          <h3>Unit Type Distribution</h3>
-          <div className={styles.typeGrid}>
-            {Object.entries(getUnitTypeStats()).map(([type, count]) => (
-              <div key={type} className={styles.typeCard}>
-                <div className={styles.typeLabel}>{type}</div>
-                <div className={styles.typeCount}>{count} units</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Search and Filter Controls */}
-        <div className={styles.controls}>
-          <div className={styles.searchGroup}>
-            <input
-              type="text"
-              placeholder="Search by unit number or owner name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-          
-          <div className={styles.filterGroup}>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className={styles.filterSelect}
-            >
-              <option value="all">All Unit Types</option>
-              <option value="1br">1 Bedroom</option>
-              <option value="2br">2 Bedroom</option>
-              <option value="3br">3 Bedroom</option>
-              <option value="penthouse">Penthouse</option>
-            </select>
-          </div>
-          
-          <div className={styles.sortGroup}>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={styles.sortSelect}
-            >
-              <option value="unit">Sort by Unit Number</option>
-              <option value="floor">Sort by Floor Level</option>
-              <option value="owner">Sort by Owner Name</option>
-              <option value="size">Sort by Unit Size</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Results Summary */}
-        <div className={styles.resultsInfo}>
-          Showing {filteredAndSortedUnits.length} of {units.length} units
-        </div>
-
-        {/* Strata Roll Table */}
-        <div className={styles.tableContainer}>
-          <table className={styles.strataTable}>
+        <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Floor</th>
-                <th>Type</th>
-                <th>Owner Name</th>
-                <th>Contact Details</th>
-                <th>Unit Size</th>
-                <th>Entitlement %</th>
-                <th>Parking</th>
-                <th>Move-in Date</th>
+              <tr style={{ background: '#003366', color: 'white' }}>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Unit</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Type</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Owner</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Contact</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Size</th>
+                <th style={{ padding: '1rem', textAlign: 'left' }}>Parking</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedUnits.map((unit) => {
-                const owner = unit.owners[0]; // Primary owner
-                const entitlementPercent = calculateTotalEntitlements() > 0 
-                  ? ((unit.square_meters / calculateTotalEntitlements()) * 100).toFixed(2)
-                  : '0.00';
-                
+              {units.map((unit, index) => {
+                const owner = unit.owners && unit.owners[0];
                 return (
-                  <tr key={unit.id}>
-                    <td className={styles.unitNumber}>{unit.unit_number}</td>
-                    <td>{unit.floor_level}</td>
-                    <td>
-                      <span className={`${styles.unitType} ${styles[unit.unit_type.toLowerCase().replace(/\s+/g, '')]}`}>
+                  <tr key={unit.id} style={{ 
+                    borderBottom: '1px solid #eee',
+                    background: index % 2 === 0 ? '#f8f9fa' : 'white'
+                  }}>
+                    <td style={{ padding: '1rem', fontWeight: 'bold', color: '#003366' }}>
+                      {unit.unit_number}
+                    </td>
+                    <td style={{ padding: '1rem' }}>
+                      <span style={{ 
+                        background: '#e3f2fd', 
+                        color: '#1976d2', 
+                        padding: '0.25rem 0.5rem', 
+                        borderRadius: '12px', 
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold'
+                      }}>
                         {unit.unit_type}
                       </span>
                     </td>
-                    <td>
+                    <td style={{ padding: '1rem' }}>
                       {owner ? (
-                        <div className={styles.ownerInfo}>
-                          <div className={styles.ownerName}>
+                        <div>
+                          <div style={{ fontWeight: '600' }}>
                             {owner.first_name} {owner.last_name}
                           </div>
-                          {owner.is_primary_contact && (
-                            <span className={styles.primaryBadge}>Primary Contact</span>
-                          )}
                         </div>
                       ) : (
-                        <span className={styles.vacant}>Vacant</span>
+                        <span style={{ color: '#dc3545', fontStyle: 'italic' }}>Vacant</span>
                       )}
                     </td>
-                    <td>
+                    <td style={{ padding: '1rem', fontSize: '0.9rem' }}>
                       {owner ? (
-                        <div className={styles.contactInfo}>
-                          <div className={styles.email}>{owner.email}</div>
-                          {owner.phone && <div className={styles.phone}>{owner.phone}</div>}
-                          {owner.emergency_contact_name && (
-                            <div className={styles.emergency}>
-                              Emergency: {owner.emergency_contact_name}
-                              {owner.emergency_contact_phone && ` (${owner.emergency_contact_phone})`}
-                            </div>
-                          )}
+                        <div>
+                          <div style={{ color: '#0070f3' }}>{owner.email}</div>
+                          {owner.phone && <div style={{ color: '#666' }}>{owner.phone}</div>}
                         </div>
                       ) : (
-                        <span className={styles.noContact}>-</span>
+                        <span style={{ color: '#999' }}>-</span>
                       )}
                     </td>
-                    <td>
-                      <div className={styles.sizeInfo}>
-                        <div className={styles.totalSize}>{unit.square_meters} m²</div>
-                        {unit.balcony_size && (
-                          <div className={styles.balconySize}>Balcony: {unit.balcony_size} m²</div>
-                        )}
-                      </div>
+                    <td style={{ padding: '1rem' }}>
+                      <div style={{ fontWeight: 'bold' }}>{unit.square_meters} m²</div>
+                      {unit.balcony_size && (
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                          Balcony: {unit.balcony_size} m²
+                        </div>
+                      )}
                     </td>
-                    <td className={styles.entitlement}>{entitlementPercent}%</td>
-                    <td>
-                      <div className={styles.amenities}>
-                        <div>{unit.parking_spaces} spaces</div>
-                        {unit.storage_unit && <div className={styles.storage}>+ Storage</div>}
-                      </div>
-                    </td>
-                    <td>
-                      {owner?.move_in_date ? (
-                        new Date(owner.move_in_date).toLocaleDateString('en-AU')
-                      ) : (
-                        <span className={styles.noDate}>-</span>
+                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                      <div>{unit.parking_spaces} spaces</div>
+                      {unit.storage_unit && (
+                        <div style={{ fontSize: '0.8rem', color: '#28a745', fontWeight: 'bold' }}>
+                          + Storage
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -290,19 +186,23 @@ export default function StrataRoll() {
           </table>
         </div>
 
-        {filteredAndSortedUnits.length === 0 && (
-          <div className={styles.noResults}>
+        {units.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
             <h3>No units found</h3>
-            <p>Try adjusting your search or filter criteria.</p>
+            <p>The database might be empty or there's a connection issue.</p>
           </div>
         )}
 
-        <div className={styles.footer}>
-          <div className={styles.footerInfo}>
-            <p><strong>Data Source:</strong> Live data from Supabase database</p>
-            <p><strong>Last Updated:</strong> {new Date().toLocaleString('en-AU')}</p>
-            <p><strong>Total Entitlements:</strong> {calculateTotalEntitlements().toFixed(2)} m² (100%)</p>
-          </div>
+        <div style={{ 
+          background: '#f8f9fa', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginTop: '2rem',
+          textAlign: 'center',
+          fontSize: '0.9rem',
+          color: '#666'
+        }}>
+          <strong>Live Database Integration:</strong> Data loaded from Supabase • Last updated: {new Date().toLocaleString()}
         </div>
       </div>
     </Layout>
