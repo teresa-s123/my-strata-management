@@ -1,3 +1,4 @@
+/* Your existing CSS - keep all of this */
 .container {
     padding: 0 2rem;
     max-width: 1200px;
@@ -86,4 +87,102 @@
     margin: 0;
     font-size: 1.25rem;
     line-height: 1.5;
+  }
+  
+  /* NEW ADDITIONS - Add these to your existing file */
+  
+  /* Special styling for the PHP card */
+  .phpCard {
+    position: relative;
+    border: 2px solid #8e44ad !important;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%) !important;
+  }
+  
+  .phpCard:hover,
+  .phpCard:focus,
+  .phpCard:active {
+    color: #6c3483 !important;
+    border-color: #6c3483 !important;
+    background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(142, 68, 173, 0.15);
+  }
+  
+  .techBadge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #8e44ad;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+  
+  /* Quick Navigation Section */
+  .quickNav {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .quickNav h3 {
+    color: #0070f3;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+  
+  .quickNavGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .quickNavLink {
+    display: block;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #eaeaea;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  
+  .quickNavLink:hover {
+    background: #0070f3;
+    color: white;
+    border-color: #0070f3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 112, 243, 0.15);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .quickNavGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .techBadge {
+      position: static;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+    
+    .grid {
+      max-width: 100%;
+    }
+    
+    .card {
+      max-width: 100%;
+      margin: 0.5rem;
+    }
   }

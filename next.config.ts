@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-
   async headers() {
     return [
       {
-
         source: "/(.*)",
         headers: [
           {
@@ -16,8 +14,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
-
   async redirects() {
     return [
       {
@@ -27,13 +23,22 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
-
+  async rewrites() {
+    return [
+      // Allow PHP files to be served alongside Next.js
+      {
+        source: "/php-maintenance",
+        destination: "/php-maintenance.html",
+      },
+    ];
+  },
   reactStrictMode: true,
-  
-
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
+  },
+  // Important: Don't interfere with Vercel's PHP runtime
+  experimental: {
+    serverComponentsExternalPackages: [],
   },
 };
 
