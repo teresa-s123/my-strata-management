@@ -1,5 +1,6 @@
+/* styles/StrataRoll.module.css */
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem 1rem;
   }
@@ -8,164 +9,337 @@
     text-align: center;
     color: #003366;
     margin-bottom: 2rem;
+    font-size: 2.5rem;
   }
   
-  .loginContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .card {
-    background-color: white;
+  .instructions {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    width: 100%;
-    max-width: 500px;
+    margin-bottom: 2rem;
+    text-align: center;
   }
   
-  .card h2 {
-    text-align: center;
+  .instructions h2 {
     color: #003366;
+    margin-top: 0;
     margin-bottom: 1rem;
   }
   
-  .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    text-align: center;
-  }
-  
-  .form {
-    margin-top: 1.5rem;
-  }
-  
-  .formGroup {
-    margin-bottom: 1.5rem;
-  }
-  
-  .formGroup label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-  
-  .button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #0070f3;
+  .dbBadge {
+    background: #28a745;
     color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .button:hover {
-    background-color: #0051a8;
-  }
-  
-  .helpText {
-    margin-top: 1rem;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #666;
-  }
-  
-  .rollContainer {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-  }
-  
-  .rollHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  
-  .logoutButton {
     padding: 0.5rem 1rem;
-    background-color: #6c757d;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 1rem;
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 3rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+  
+  .retryButton {
+    background: #0070f3;
     color: white;
+    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    margin-top: 1rem;
   }
   
-  .logoutButton:hover {
-    background-color: #5a6268;
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
   
-  .info {
-    background-color: #e3f2fd;
+  .statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    border-left: 4px solid #0070f3;
+  }
+  
+  .statCard h3 {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .statNumber {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #003366;
+  }
+  
+  .typeBreakdown {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .typeBreakdown h3 {
+    margin-top: 0;
+    color: #003366;
+  }
+  
+  .typeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .typeCard {
+    background: #f8f9fa;
     padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 2px solid #e9ecef;
   }
   
-  .searchContainer {
-    margin-bottom: 1.5rem;
+  .typeLabel {
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 0.5rem;
   }
   
-  .searchInput {
-    width: 100%;
+  .typeCount {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .controls {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .searchInput, .filterSelect, .sortSelect {
     padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    width: 100%;
+  }
+  
+  .searchInput:focus, .filterSelect:focus, .sortSelect:focus {
+    outline: none;
+    border-color: #0070f3;
+  }
+  
+  .resultsInfo {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
   }
   
   .tableContainer {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
     overflow-x: auto;
-    margin-bottom: 1.5rem;
   }
   
-  .table {
+  .strataTable {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.9rem;
   }
   
-  .table th, .table td {
-    padding: 0.75rem;
+  .strataTable th {
+    background: #003366;
+    color: white;
+    padding: 1rem 0.75rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
-  .table th {
-    background-color: #f8f9fa;
-    color: #495057;
+  .strataTable td {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
   }
   
-  .table tbody tr:hover {
-    background-color: #f8f9fa;
+  .strataTable tr:hover {
+    background: #f8f9fa;
   }
   
-  .summary {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-  }
-  
-  .summary h3 {
+  .unitNumber {
+    font-weight: bold;
+    font-size: 1.1rem;
     color: #003366;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
+  }
+  
+  .unitType {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .br1 { background: #e3f2fd; color: #1976d2; }
+  .br2 { background: #f3e5f5; color: #7b1fa2; }
+  .br3 { background: #e8f5e8; color: #388e3c; }
+  .penthouse { background: #fff3e0; color: #f57c00; }
+  
+  .ownerInfo {
+    min-width: 150px;
+  }
+  
+  .ownerName {
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.25rem;
+  }
+  
+  .primaryBadge {
+    background: #28a745;
+    color: white;
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+  
+  .vacant {
+    color: #dc3545;
+    font-style: italic;
+  }
+  
+  .contactInfo {
+    min-width: 200px;
+    font-size: 0.85rem;
+  }
+  
+  .email {
+    color: #0070f3;
+    margin-bottom: 0.25rem;
+  }
+  
+  .phone {
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
+  
+  .emergency {
+    color: #dc3545;
+    font-size: 0.8rem;
+  }
+  
+  .noContact, .noDate {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .sizeInfo {
+    text-align: right;
+  }
+  
+  .totalSize {
+    font-weight: bold;
+    color: #003366;
+  }
+  
+  .balconySize {
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .entitlement {
+    text-align: right;
+    font-weight: bold;
+    color: #0070f3;
+  }
+  
+  .amenities {
+    text-align: center;
+  }
+  
+  .storage {
+    color: #28a745;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .noResults {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+  }
+  
+  .footer {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    text-align: center;
+    border-top: 3px solid #0070f3;
+  }
+  
+  .footerInfo p {
+    margin: 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 1200px) {
+    .strataTable {
+      font-size: 0.8rem;
+    }
+    
+    .strataTable th,
+    .strataTable td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .controls {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    
+    .statsGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .typeGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .tableContainer {
+      overflow-x: auto;
+    }
+    
+    .strataTable {
+      min-width: 1000px;
+    }
   }
