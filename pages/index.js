@@ -53,12 +53,10 @@ export default function Home() {
           </a>
 
           {/* PHP STATUS CHECK CARD */}
-          <Link href="/php-maintenance">
-            <a className={`${styles.card} ${styles.phpCard}`}>
-              <h2>Status Check (PHP) &rarr;</h2>
-              <p>Check the status of your maintenance requests using our server-side portal.</p>
-              <span className={styles.techBadge}>PHP Powered</span>
-            </a>
+          <Link href="/php-maintenance" className={`${styles.card} ${styles.phpCard}`}>
+            <h2>Status Check (PHP) &rarr;</h2>
+            <p>Check the status of your maintenance requests using our server-side portal.</p>
+            <span className={styles.techBadge}>PHP Powered</span>
           </Link>
 
           <a href="/levies" className={styles.card}>
