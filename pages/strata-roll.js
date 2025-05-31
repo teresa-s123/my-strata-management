@@ -1,166 +1,132 @@
+import Head from 'next/head';
+import Link from 'next/link';
 import { useState } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/StrataRoll.module.css';
+import styles from '../styles/PHPMaintenance.module.css';
 
-export default function StrataRoll() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+export default function PHPMaintenance() {
+  const [requestId, setRequestId] = useState('');
 
-
-  const owners = [
-    { unitNumber: '101', name: 'John Smith', email: 'john.smith@example.com', phone: '0412 345 678', entitlement: 10 },
-    { unitNumber: '102', name: 'Sarah Johnson', email: 'sarah.j@example.com', phone: '0423 456 789', entitlement: 8 },
-    { unitNumber: '103', name: 'Michael Brown', email: 'michael.brown@example.com', phone: '0434 567 890', entitlement: 10 },
-    { unitNumber: '201', name: 'Emma Wilson', email: 'emma.w@example.com', phone: '0445 678 901', entitlement: 10 },
-    { unitNumber: '202', name: 'David Lee', email: 'david.lee@example.com', phone: '0456 789 012', entitlement: 8 },
-    { unitNumber: '203', name: 'Jennifer Wong', email: 'jennifer.w@example.com', phone: '0467 890 123', entitlement: 10 },
-    { unitNumber: '301', name: 'Robert Chen', email: 'robert.c@example.com', phone: '0478 901 234', entitlement: 12 },
-    { unitNumber: '302', name: 'Lisa Taylor', email: 'lisa.t@example.com', phone: '0489 012 345', entitlement: 12 },
-    { unitNumber: '303', name: 'James Martinez', email: 'james.m@example.com', phone: '0490 123 456', entitlement: 12 },
-    { unitNumber: '401', name: 'Patricia Garcia', email: 'patricia.g@example.com', phone: '0491 234 567', entitlement: 15 },
-    { unitNumber: '402', name: 'Thomas Anderson', email: 'thomas.a@example.com', phone: '0492 345 678', entitlement: 15 },
-    { unitNumber: '403', name: 'Elizabeth White', email: 'elizabeth.w@example.com', phone: '0493 456 789', entitlement: 15 },
-  ];
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // This is a simple mock authentication
-    // In a real app, this would validate against a secure database
-    if (loginData.username === 'admin' && loginData.password === 'password123') {
-      setIsLoggedIn(true);
-      setError('');
-    } else {
-      setError('Invalid username or password');
+    if (requestId.trim()) {
+      window.location.href = `/api/maintenance-php.php?requestId=${requestId.trim()}`;
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setLoginData({ username: '', password: '' });
-  };
-
-
-  const filteredOwners = owners.filter(owner => 
-    owner.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    owner.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <Layout title="Strata Roll">
+    <Layout title="Maintenance Status - PHP Portal">
       <div className={styles.container}>
-        <h1 className={styles.heading}>Strata Roll</h1>
-        
-        {!isLoggedIn ? (
-          <div className={styles.loginContainer}>
-            <div className={styles.card}>
-              <h2>Committee Access Only</h2>
-              <p>Please log in with your committee credentials to access the strata roll.</p>
-              
-              {error && <div className={styles.error}>{error}</div>}
-              
-              <form onSubmit={handleLogin} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="username">Username</label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={loginData.username}
-                    onChange={handleChange}
-                    required
-                    className={styles.input}
-                    placeholder="Enter your username"
-                  />
-                </div>
-                
-                <div className={styles.formGroup}>
-                  <label htmlFor="password">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={loginData.password}
-                    onChange={handleChange}
-                    required
-                    className={styles.input}
-                    placeholder="Enter your password"
-                  />
-                </div>
-                
-                <button type="submit" className={styles.button}>
-                  Login to Access Strata Roll
-                </button>
-              </form>
-              
-              <div className={styles.helpText}>
-                <p>Note: The strata roll contains personal information and is only accessible to authorized committee members.</p>
+        <div className={styles.navigation}>
+          <Link href="/"><a className={styles.navLink}>Home</a></Link>
+          <Link href="/maintenance"><a className={styles.navLink}>Submit New Request</a></Link>
+          <Link href="/php-maintenance"><a className={styles.navLink}>Check Status (PHP)</a></Link>
+        </div>
+
+        <div className={styles.main}>
+          <h1 className={styles.heading}>🏢 Oceanview Apartments - Maintenance Status Portal</h1>
+          <span className={styles.phpBadge}>Powered by PHP on Vercel</span>
+          
+          <div className={styles.instructions}>
+            <h2>🔍 Check Your Maintenance Request Status</h2>
+            <p>Enter your request ID to view the current status and details of your maintenance request. This system is powered by PHP running on Vercel's serverless platform.</p>
+          </div>
+          
+          <div className={styles.formContainer}>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label htmlFor="requestId">Request ID:</label>
+                <input 
+                  type="text" 
+                  id="requestId" 
+                  name="requestId" 
+                  className={styles.formControl}
+                  placeholder="Enter your request ID (e.g., MR12345)"
+                  value={requestId}
+                  onChange={(e) => setRequestId(e.target.value)}
+                  autoFocus
+                />
               </div>
+              <button type="submit" className={styles.btn}>Check Status</button>
+            </form>
+          </div>
+          
+          {/* Stats Section */}
+          <div className={styles.statsSection}>
+            <div className={styles.statCard}>
+              <div className={styles.statNumber}>24</div>
+              <div>Total Requests</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statNumber}>8</div>
+              <div>Pending</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statNumber}>12</div>
+              <div>In Progress</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statNumber}>4</div>
+              <div>Completed Today</div>
             </div>
           </div>
-        ) : (
-          <div className={styles.rollContainer}>
-            <div className={styles.rollHeader}>
-              <p>Logged in as Committee Member: {loginData.username}</p>
-              <button onClick={handleLogout} className={styles.logoutButton}>
-                Logout
-              </button>
-            </div>
-            
-            <div className={styles.info}>
-              <p>The strata roll contains information about all lot owners in the building as required by the NSW Strata Schemes Management Act (2015).</p>
-            </div>
-            
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search by unit, name or email..."
-                className={styles.searchInput}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Unit</th>
-                    <th>Owner Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Unit Entitlement</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOwners.map(owner => (
-                    <tr key={owner.unitNumber}>
-                      <td>{owner.unitNumber}</td>
-                      <td>{owner.name}</td>
-                      <td>{owner.email}</td>
-                      <td>{owner.phone}</td>
-                      <td>{owner.entitlement}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div className={styles.summary}>
-              <h3>Summary</h3>
-              <p>Total Units: {owners.length}</p>
-              <p>Total Unit Entitlements: {owners.reduce((sum, owner) => sum + owner.entitlement, 0)}</p>
-            </div>
+          
+          <h2 className={styles.sectionHeading}>📋 Recent Maintenance Requests</h2>
+          
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Unit</th>
+                <th>Issue Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onClick={() => window.location.href='/api/maintenance-php.php?requestId=MR12345'} className={styles.clickableRow}>
+                <td><strong>MR12345</strong></td>
+                <td>Unit 101</td>
+                <td>Plumbing Repair</td>
+                <td><span className={styles.priorityNormal}>Normal</span></td>
+                <td>Pending Review</td>
+                <td>2 hours ago</td>
+              </tr>
+              <tr onClick={() => window.location.href='/api/maintenance-php.php?requestId=MR54321'} className={styles.clickableRow}>
+                <td><strong>MR54321</strong></td>
+                <td>Unit 205</td>
+                <td>Electrical Inspection</td>
+                <td><span className={styles.priorityHigh}>High</span></td>
+                <td>In Progress</td>
+                <td>1 day ago</td>
+              </tr>
+              <tr onClick={() => window.location.href='/api/maintenance-php.php?requestId=MR99887'} className={styles.clickableRow}>
+                <td><strong>MR99887</strong></td>
+                <td>Unit 103</td>
+                <td>AC Repair</td>
+                <td><span className={styles.priorityHigh}>High</span></td>
+                <td>✅ Completed</td>
+                <td>3 days ago</td>
+              </tr>
+              <tr onClick={() => window.location.href='/api/maintenance-php.php?requestId=MR11223'} className={styles.clickableRow}>
+                <td><strong>MR11223</strong></td>
+                <td>Unit 302</td>
+                <td>Equipment Safety</td>
+                <td><span className={styles.priorityEmergency}>Emergency</span></td>
+                <td>🚨 Scheduled Today</td>
+                <td>30 minutes ago</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div className={styles.alert}>
+            <h3>💡 PHP Integration Demonstration</h3>
+            <p><strong>What this page demonstrates:</strong> This maintenance status portal is built with PHP running on Vercel's serverless platform, showing how PHP can complement your existing Next.js application.</p>
+            <p><strong>Technical implementation:</strong> The status checker uses PHP for server-side processing while maintaining design consistency with your existing maintenance request system.</p>
+            <p><strong>Try it:</strong> Click on any request ID in the table above or use the search form to see detailed PHP-generated status pages.</p>
           </div>
-        )}
+        </div>
       </div>
     </Layout>
   );
