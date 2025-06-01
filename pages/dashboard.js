@@ -19,7 +19,6 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // Sample data for demonstration
       const sampleStats = {
         maintenance: {
           total: 12,
@@ -56,14 +55,6 @@ export default function Dashboard() {
               status: 'in-progress',
               priority: 'high',
               created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-              request_id: 'MR12343',
-              units: { unit_number: '201' },
-              description: 'Bathroom light fixture replacement',
-              status: 'completed',
-              priority: 'low',
-              created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
             }
           ],
           payments: [
@@ -87,7 +78,6 @@ export default function Dashboard() {
         }
       };
 
-      // Try to load real data from database, fall back to sample data
       try {
         const { data: maintenanceData } = await supabase
           .from('maintenance_requests')
@@ -161,7 +151,14 @@ export default function Dashboard() {
   return (
     <Layout title="Dashboard">
       <div className="container" style={{ padding: '2rem 1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: '2rem', 
+          flexWrap: 'wrap', 
+          gap: '1rem' 
+        }}>
           <h1 style={{ color: '#003366', margin: 0 }}>📊 Building Management Dashboard</h1>
           <div className="alert alert-success" style={{ 
             margin: 0,
@@ -172,14 +169,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Key Metrics Grid */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
           gap: '1.5rem',
           marginBottom: '2rem'
         }}>
-          {/* Maintenance Overview */}
           <div style={{ 
             background: 'white', 
             padding: '1.5rem', 
@@ -187,164 +182,9 @@ export default function Dashboard() {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             border: '1px solid #e0e0e0'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>🔧 Recent Maintenance</h3>
-            {stats.recent.maintenance.map((request, index) => (
-              <div key={request.request_id} style={{ 
-                padding: '0.75rem', 
-                borderBottom: index < stats.recent.maintenance.length - 1 ? '1px solid #eee' : 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '600', color: '#003366', fontSize: '0.95rem' }}>
-                    {request.request_id} - Unit {request.units?.unit_number}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem', lineHeight: '1.3' }}>
-                    {request.description?.substring(0, 50)}...
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
-                    {new Date(request.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-                <div style={{ marginLeft: '1rem' }}>
-                  {getStatusBadge(request.status)}
-                </div>
-              </div>
-            ))}
-            {stats.recent.maintenance.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-                No recent maintenance requests
-              </div>
-            )}
-          </div>
-
-          {/* Recent Payments */}
-          <div style={{ 
-            background: 'white', 
-            padding: '1.5rem', 
-            borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>💰 Recent Payments</h3>
-            {stats.recent.payments.map((payment, index) => (
-              <div key={index} style={{ 
-                padding: '0.75rem', 
-                borderBottom: index < stats.recent.payments.length - 1 ? '1px solid #eee' : 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <div>
-                  <div style={{ fontWeight: '600', color: '#003366', fontSize: '0.95rem' }}>
-                    Unit {payment.units?.unit_number}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
-                    {payment.owners?.first_name} {payment.owners?.last_name}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
-                    Q{payment.quarter}/{payment.year}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 'bold', color: '#28a745', fontSize: '1rem' }}>
-                    {formatCurrency(payment.amount)}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#666' }}>
-                    {new Date(payment.paid_date).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {stats.recent.payments.length === 0 && (
-              <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-                No recent payments
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div style={{ 
-          background: 'white', 
-          padding: '1.5rem', 
-          borderRadius: '8px', 
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          border: '1px solid #e0e0e0'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>⚡ Quick Actions</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <button
-              onClick={() => window.location.href = '/maintenance'}
-              className="btn"
-              style={{
-                padding: '1rem',
-                textAlign: 'center',
-                fontSize: '0.9rem',
-                fontWeight: 'bold'
-              }}
-            >
-              🔧 Submit Maintenance Request
-            </button>
-            <button
-              onClick={() => window.location.href = '/levies'}
-              className="btn btn-secondary"
-              style={{
-                padding: '1rem',
-                textAlign: 'center',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
-                background: '#28a745'
-              }}
-            >
-              💰 View Levy Payments
-            </button>
-            <button
-              onClick={() => window.location.href = '/documents'}
-              className="btn btn-secondary"
-              style={{
-                padding: '1rem',
-                textAlign: 'center',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
-                background: '#17a2b8'
-              }}
-            >
-              📋 Access Documents
-            </button>
-            <button
-              onClick={() => window.location.href = '/reports'}
-              className="btn btn-secondary"
-              style={{
-                padding: '1rem',
-                textAlign: 'center',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
-                background: '#6f42c1'
-              }}
-            >
-              📊 Generate Reports
-            </button>
-          </div>
-        </div>
-
-        <div style={{ 
-          background: '#e8f4f8', 
-          padding: '1rem', 
-          borderRadius: '8px', 
-          marginTop: '2rem',
-          textAlign: 'center',
-          fontSize: '0.9rem',
-          color: '#0c5460',
-          border: '1px solid #bee5eb'
-        }}>
-          <strong>📊 Dashboard:</strong> Real-time building management insights and quick access to key functions
-        </div>
-      </div>
-    </Layout>
-  );
-}366', fontSize: '1.1rem' }}>🔧 Maintenance Requests</h3>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#003366', fontSize: '1.1rem' }}>
+              🔧 Maintenance Requests
+            </h3>
             <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#003366', marginBottom: '0.5rem' }}>
               {stats.maintenance.total}
             </div>
@@ -374,7 +214,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Levy Collection */}
           <div style={{ 
             background: 'white', 
             padding: '1.5rem', 
@@ -382,13 +221,19 @@ export default function Dashboard() {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             border: '1px solid #e0e0e0'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#003366', fontSize: '1.1rem' }}>💰 Levy Collection</h3>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#003366', fontSize: '1.1rem' }}>
+              💰 Levy Collection
+            </h3>
             <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#28a745', marginBottom: '0.5rem' }}>
               {stats.levy.collectionRate.toFixed(1)}%
             </div>
             <div style={{ fontSize: '0.9rem', color: '#666' }}>
-              <div style={{ marginBottom: '0.25rem' }}>Collected: {formatCurrency(stats.levy.totalPaid)}</div>
-              <div>Outstanding: {formatCurrency(stats.levy.totalDue - stats.levy.totalPaid)}</div>
+              <div style={{ marginBottom: '0.25rem' }}>
+                Collected: {formatCurrency(stats.levy.totalPaid)}
+              </div>
+              <div>
+                Outstanding: {formatCurrency(stats.levy.totalDue - stats.levy.totalPaid)}
+              </div>
             </div>
             {stats.levy.overdue > 0 && (
               <div style={{ 
@@ -406,7 +251,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Units Occupancy */}
           <div style={{ 
             background: 'white', 
             padding: '1.5rem', 
@@ -414,7 +258,9 @@ export default function Dashboard() {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             border: '1px solid #e0e0e0'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#003366', fontSize: '1.1rem' }}>🏠 Unit Occupancy</h3>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#003366', fontSize: '1.1rem' }}>
+              🏠 Unit Occupancy
+            </h3>
             <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#003366', marginBottom: '0.5rem' }}>
               {stats.units.total}
             </div>
@@ -437,14 +283,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
           gap: '1.5rem',
           marginBottom: '2rem'
         }}>
-          {/* Recent Maintenance */}
           <div style={{ 
             background: 'white', 
             padding: '1.5rem', 
@@ -452,4 +296,166 @@ export default function Dashboard() {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             border: '1px solid #e0e0e0'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#003
+            <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>🔧 Recent Maintenance</h3>
+            {stats.recent.maintenance.map((request, index) => (
+              <div key={request.request_id} style={{ 
+                padding: '0.75rem', 
+                borderBottom: index < stats.recent.maintenance.length - 1 ? '1px solid #eee' : 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '600', color: '#003366', fontSize: '0.95rem' }}>
+                    {request.request_id} - Unit {request.units && request.units.unit_number}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem', lineHeight: '1.3' }}>
+                    {request.description && request.description.substring(0, 50)}...
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
+                    {new Date(request.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+                <div style={{ marginLeft: '1rem' }}>
+                  {getStatusBadge(request.status)}
+                </div>
+              </div>
+            ))}
+            {stats.recent.maintenance.length === 0 && (
+              <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+                No recent maintenance requests
+              </div>
+            )}
+          </div>
+
+          <div style={{ 
+            background: 'white', 
+            padding: '1.5rem', 
+            borderRadius: '8px', 
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            border: '1px solid #e0e0e0'
+          }}>
+            <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>💰 Recent Payments</h3>
+            {stats.recent.payments.map((payment, index) => (
+              <div key={index} style={{ 
+                padding: '0.75rem', 
+                borderBottom: index < stats.recent.payments.length - 1 ? '1px solid #eee' : 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontWeight: '600', color: '#003366', fontSize: '0.95rem' }}>
+                    Unit {payment.units && payment.units.unit_number}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
+                    {payment.owners && payment.owners.first_name} {payment.owners && payment.owners.last_name}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
+                    Q{payment.quarter}/{payment.year}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 'bold', color: '#28a745', fontSize: '1rem' }}>
+                    {formatCurrency(payment.amount)}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#666' }}>
+                    {new Date(payment.paid_date).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {stats.recent.payments.length === 0 && (
+              <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+                No recent payments
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ 
+          background: 'white', 
+          padding: '1.5rem', 
+          borderRadius: '8px', 
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ margin: '0 0 1rem 0', color: '#003366' }}>⚡ Quick Actions</h3>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1rem' 
+          }}>
+            <button
+              onClick={() => window.location.href = '/maintenance'}
+              className="btn"
+              style={{
+                padding: '1rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}
+            >
+              🔧 Submit Maintenance Request
+            </button>
+            <button
+              onClick={() => window.location.href = '/levies'}
+              className="btn btn-secondary"
+              style={{
+                padding: '1rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                background: '#28a745',
+                color: 'white'
+              }}
+            >
+              💰 View Levy Payments
+            </button>
+            <button
+              onClick={() => window.location.href = '/documents'}
+              className="btn btn-secondary"
+              style={{
+                padding: '1rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                background: '#17a2b8',
+                color: 'white'
+              }}
+            >
+              📋 Access Documents
+            </button>
+            <button
+              onClick={() => window.location.href = '/reports'}
+              className="btn btn-secondary"
+              style={{
+                padding: '1rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                background: '#6f42c1',
+                color: 'white'
+              }}
+            >
+              📊 Generate Reports
+            </button>
+          </div>
+        </div>
+
+        <div style={{ 
+          background: '#e8f4f8', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginTop: '2rem',
+          textAlign: 'center',
+          fontSize: '0.9rem',
+          color: '#0c5460',
+          border: '1px solid #bee5eb'
+        }}>
+          <strong>📊 Dashboard:</strong> Real-time building management insights and quick access to key functions
+        </div>
+      </div>
+    </Layout>
+  );
+}
