@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   async headers() {
     return [
       {
@@ -25,7 +24,6 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // Allow PHP files to be served alongside Next.js
       {
         source: "/php-maintenance",
         destination: "/php-maintenance.html",
@@ -36,10 +34,9 @@ const nextConfig: NextConfig = {
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
   },
-  // Important: Don't interfere with Vercel's PHP runtime
   experimental: {
-    // Empty - no experimental features that could break JS code
+    // Empty experimental section - no problematic options
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
