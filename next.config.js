@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Security headers - preserving your existing configuration
+  // Security headers
   async headers() {
     return [
       {
@@ -15,7 +15,7 @@ const nextConfig = {
     ];
   },
 
-  // Redirects - preserving your existing configuration
+  // Redirects
   async redirects() {
     return [
       {
@@ -26,10 +26,9 @@ const nextConfig = {
     ];
   },
 
-  // Rewrites - preserving your existing configuration
+  // Rewrites
   async rewrites() {
     return [
-      // Allow PHP files to be served alongside Next.js
       {
         source: "/php-maintenance",
         destination: "/php-maintenance.html",
@@ -40,15 +39,15 @@ const nextConfig = {
   // React configuration
   reactStrictMode: true,
 
-  // Environment variables - preserving your existing configuration
+  // Environment variables
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
   },
 
-  // Experimental features - correct for Next.js 14
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
+  // FIXED: Updated for Next.js 15 - moved serverComponentsExternalPackages to serverExternalPackages
+  serverExternalPackages: [],
+
+  // Remove the experimental section since it's no longer needed
 };
 
 module.exports = nextConfig;
