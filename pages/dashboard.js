@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
-import { supabase } from '../lib/supabase';
 import { 
   getUserCookie, 
   removeUserCookie, 
@@ -18,67 +17,66 @@ import {
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userRequests, setUserRequests] = useState([]);
-  const [userPayments, setUserPayments] = useState([]);
   const [sessionInfo, setSessionInfo] = useState(null);
   const [preferences, setPreferences] = useState({});
   const [cookieStats, setCookieStats] = useState({});
   const [showCookieDetails, setShowCookieDetails] = useState(false);
+  const [notification, setNotification] = useState('');
   const router = useRouter();
 
-  // Demo data for when Supabase is not available
+  // Demo data for Oceanview Apartments
   const demoRequests = [
     {
       id: 1,
       request_id: 'REQ-2025-001',
-      title: 'Leaky Faucet Repair',
+      title: 'Pool Maintenance Issue',
       status: 'pending',
       created_at: '2025-06-01T09:00:00Z',
-      description: 'Kitchen faucet is leaking consistently'
+      description: 'Pool filter needs cleaning and chemical balance adjustment'
     },
     {
       id: 2,
       request_id: 'REQ-2025-002', 
-      title: 'Air Conditioning Service',
+      title: 'Elevator Service',
       status: 'completed',
       created_at: '2025-05-28T14:30:00Z',
-      description: 'Annual HVAC maintenance and filter replacement'
+      description: 'Monthly elevator inspection and maintenance completed'
     },
     {
       id: 3,
       request_id: 'REQ-2025-003',
-      title: 'Elevator Noise Issue',
+      title: 'Balcony Door Lock',
       status: 'in-progress', 
       created_at: '2025-05-25T16:45:00Z',
-      description: 'Strange noises coming from elevator shaft'
+      description: 'Sliding door lock mechanism needs repair'
     }
   ];
 
   const demoPayments = [
     {
       id: 1,
-      amount: 1250.00,
+      amount: 1350.00,
       due_date: '2025-06-15',
       status: 'paid',
       payment_date: '2025-05-30',
-      description: 'Q2 2025 Levy Payment',
+      description: 'Q2 2025 Strata Levy',
       reference: 'LEVY-Q2-2025'
     },
     {
       id: 2,
-      amount: 1250.00,
-      due_date: '2025-09-15',
+      amount: 1350.00,
+      due_date: '2025-09-15', 
       status: 'pending',
-      description: 'Q3 2025 Levy Payment', 
+      description: 'Q3 2025 Strata Levy',
       reference: 'LEVY-Q3-2025'
     },
     {
       id: 3,
-      amount: 350.00,
+      amount: 450.00,
       due_date: '2025-07-01',
       status: 'overdue',
-      description: 'Special Assessment - Building Maintenance',
-      reference: 'SPEC-ASSESS-2025-01'
+      description: 'Special Assessment - Pool Renovation',
+      reference: 'SPEC-POOL-2025'
     }
   ];
 
@@ -102,9 +100,6 @@ export default function Dashboard() {
     
     // Setup auto-logout
     setupAutoLogout();
-
-    // Load user-specific data
-    loadUserData(userData);
     
     setLoading(false);
 
@@ -122,109 +117,24 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [router]);
 
-  const loadUserData = async (userData) => {
-    try {
-      // Try to load from Supabase
-      const { data: requests, error: requestsError } = await supabase
-        .from('maintenance_requests')
-        .select('*')
-        .eq('unit_id', userData.unitId)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (!requestsError && requests) {
-        setUserRequests(requests);
-      } else {
-        // Use demo data
-        setUserRequests(demoRequests);
-      }
-
-      const { data: payments, error: paymentsError } = await supabase
-        .from('levy_payments')
-        .select('*')
-        .eq('unit_id', userData.unitId)
-        .order('due_date', { ascending: false })
-        .limit(5);
-
-      if (!paymentsError && payments) {
-        setUserPayments(payments);
-      } else {
-        // Use demo data
-        setUserPayments(demoPayments);
-      }
-
-    } catch (error) {
-      console.warn('Database not available, using demo data');
-      setUserRequests(demoRequests);
-      setUserPayments(demoPayments);
-    }
-  };
-
   const handleLogout = () => {
     removeUserCookie();
-    router.push('/login');
+    showNotificationMessage('Logged out successfully! All cookies cleared.');
+    setTimeout(() => {
+      router.push('/login');
+    }, 1500);
   };
 
   const updatePreference = (key, value) => {
     const newPrefs = { ...preferences, [key]: value };
     setPreferences(newPrefs);
     setPreferencesCookie(newPrefs);
-    
-    // Show feedback
-    showNotification(`${key} preference updated and saved to cookies!`);
-    
-    // Apply theme immediately if changed
-    if (key === 'theme') {
-      applyTheme(value);
-    }
+    showNotificationMessage(`${key} preference updated and saved to cookies!`);
   };
 
-  const applyTheme = (theme) => {
-    const body = document.body;
-    
-    if (theme === 'dark') {
-      body.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%)';
-      body.style.color = '#ffffff';
-    } else {
-      body.style.background = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
-      body.style.color = '#333333';
-    }
-  };
-
-  const showNotification = (message) => {
-    // Simple notification system
-    const notification = document.createElement('div');
-    notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #28a745;
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 1000;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 300);
-    }, 3000);
+  const showNotificationMessage = (message) => {
+    setNotification(message);
+    setTimeout(() => setNotification(''), 3000);
   };
 
   const formatCurrency = (amount) => {
@@ -258,7 +168,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <Layout title="Dashboard">
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <div className="container" style={{ padding: '2rem', textAlign: 'center' }}>
           <h2>Loading your personalized dashboard...</h2>
           <p>Checking cookie authentication...</p>
         </div>
@@ -272,38 +182,51 @@ export default function Dashboard() {
 
   return (
     <Layout title="My Dashboard">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Notification */}
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: '#28a745',
+          color: 'white',
+          padding: '1rem 1.5rem',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 1000
+        }}>
+          {notification}
+        </div>
+      )}
+
+      <div className="container" style={{ padding: '2rem 1rem' }}>
         {/* User Header */}
         <div style={{
-          background: 'linear-gradient(135deg, #003366 0%, #0070f3 100%)',
+          background: 'linear-gradient(135deg, #0070f3 0%, #0051a8 100%)',
           color: 'white',
           padding: '2rem',
           borderRadius: '12px',
-          marginBottom: '2rem',
-          position: 'relative'
+          marginBottom: '2rem'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h1 style={{ margin: '0 0 0.5rem 0' }}>
+              <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>
                 Welcome back, {user.name}! 👋
               </h1>
-              <p style={{ margin: 0, opacity: 0.9 }}>
-                Unit {user.unitNumber} ({user.unitType}) • Session: {sessionInfo?.hours || 0}h {sessionInfo?.minutes || 0}m
+              <p style={{ margin: 0, opacity: 0.9, fontSize: '1.1rem' }}>
+                Oceanview Apartments - Unit {user.unitNumber} ({user.unitType})
+              </p>
+              <p style={{ margin: '0.5rem 0 0 0', opacity: 0.8 }}>
+                Session: {sessionInfo?.hours || 0}h {sessionInfo?.minutes || 0}m
               </p>
             </div>
             <button
               onClick={handleLogout}
+              className="btn"
               style={{
                 background: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                border: '1px solid rgba(255,255,255,0.3)',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'background 0.2s'
+                border: '1px solid rgba(255,255,255,0.3)'
               }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
-              onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
             >
               Logout & Clear Cookies 🍪
             </button>
@@ -339,20 +262,13 @@ export default function Dashboard() {
           marginBottom: '2rem',
           border: '2px solid #0070f3'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
             <h3 style={{ color: '#003366', margin: 0 }}>
               🍪 Cookie-Based Session Management Demo
             </h3>
             <button
               onClick={() => setShowCookieDetails(!showCookieDetails)}
-              style={{
-                background: '#0070f3',
-                color: 'white',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="btn btn-secondary"
             >
               {showCookieDetails ? 'Hide Details' : 'Show Cookie Details'}
             </button>
@@ -382,9 +298,9 @@ export default function Dashboard() {
           </div>
 
           {showCookieDetails && (
-            <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8f9fa', borderRadius: '6px' }}>
+            <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
               <strong>Current Cookie Values:</strong>
-              <pre style={{ fontSize: '0.8rem', marginTop: '0.5rem', overflow: 'auto' }}>
+              <pre style={{ fontSize: '0.8rem', marginTop: '0.5rem', overflow: 'auto', background: 'white', padding: '1rem', borderRadius: '4px' }}>
                 {JSON.stringify({
                   user_session: {
                     sessionId: user.sessionId,
@@ -406,20 +322,19 @@ export default function Dashboard() {
           padding: '1.5rem',
           borderRadius: '10px',
           marginBottom: '2rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: '1px solid #dee2e6'
         }}>
-          <h3 style={{ color: '#003366', marginTop: 0, marginBottom: '1rem' }}>
+          <h3 style={{ color: '#0070f3', marginTop: 0, marginBottom: '1rem' }}>
             ⚙️ Your Preferences (Stored in Cookies)
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
-                Theme:
-              </label>
+            <div className="form-group">
+              <label>Theme:</label>
               <select
+                className="form-control"
                 value={preferences.theme || 'light'}
                 onChange={(e) => updatePreference('theme', e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', width: '100%' }}
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -427,8 +342,8 @@ export default function Dashboard() {
               </select>
             </div>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+            <div className="form-group">
+              <label>
                 <input
                   type="checkbox"
                   checked={preferences.notifications !== false}
@@ -439,14 +354,12 @@ export default function Dashboard() {
               </label>
             </div>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
-                Language:
-              </label>
+            <div className="form-group">
+              <label>Language:</label>
               <select
+                className="form-control"
                 value={preferences.language || 'en'}
                 onChange={(e) => updatePreference('language', e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', width: '100%' }}
               >
                 <option value="en">English</option>
                 <option value="es">Español</option>
@@ -454,14 +367,12 @@ export default function Dashboard() {
               </select>
             </div>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
-                Dashboard Layout:
-              </label>
+            <div className="form-group">
+              <label>Dashboard Layout:</label>
               <select
+                className="form-control"
                 value={preferences.dashboardLayout || 'grid'}
                 onChange={(e) => updatePreference('dashboardLayout', e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', width: '100%' }}
               >
                 <option value="grid">Grid View</option>
                 <option value="list">List View</option>
@@ -482,73 +393,47 @@ export default function Dashboard() {
             background: 'white',
             padding: '1.5rem',
             borderRadius: '10px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid #dee2e6'
           }}>
-            <h3 style={{ color: '#003366', marginTop: 0, marginBottom: '1rem' }}>
+            <h3 style={{ color: '#0070f3', marginTop: 0, marginBottom: '1rem' }}>
               🔧 Your Recent Maintenance Requests
             </h3>
-            {userRequests.length > 0 ? (
-              <div>
-                {userRequests.map(request => (
-                  <div key={request.id} style={{
-                    padding: '1rem',
-                    margin: '0.5rem 0',
-                    border: '1px solid #eee',
-                    borderRadius: '6px',
-                    borderLeft: `4px solid ${getStatusColor(request.status)}`
-                  }}>
-                    <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
-                      {request.request_id}: {request.title}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                      Status: <span style={getStatusBadgeStyle(request.status)}>
-                        {request.status.toUpperCase()}
-                      </span>
-                    </div>
-                    {request.description && (
-                      <div style={{ fontSize: '0.9rem', color: '#777', marginBottom: '0.5rem' }}>
-                        {request.description}
-                      </div>
-                    )}
-                    <div style={{ fontSize: '0.8rem', color: '#999' }}>
-                      Submitted: {new Date(request.created_at).toLocaleDateString()}
-                    </div>
+            <div>
+              {demoRequests.map(request => (
+                <div key={request.id} style={{
+                  padding: '1rem',
+                  margin: '0.5rem 0',
+                  border: '1px solid #eee',
+                  borderRadius: '6px',
+                  borderLeft: `4px solid ${getStatusColor(request.status)}`
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
+                    {request.request_id}: {request.title}
                   </div>
-                ))}
-                <button
-                  onClick={() => showNotification('New maintenance request form opened!')}
-                  style={{
-                    background: '#0070f3',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                    width: '100%'
-                  }}
-                >
-                  Submit New Request
-                </button>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-                <p>No maintenance requests found.</p>
-                <button
-                  onClick={() => showNotification('New maintenance request form opened!')}
-                  style={{
-                    background: '#0070f3',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Submit Your First Request
-                </button>
-              </div>
-            )}
+                  <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                    Status: <span style={getStatusBadgeStyle(request.status)}>
+                      {request.status.toUpperCase()}
+                    </span>
+                  </div>
+                  {request.description && (
+                    <div style={{ fontSize: '0.9rem', color: '#777', marginBottom: '0.5rem' }}>
+                      {request.description}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.8rem', color: '#999' }}>
+                    Submitted: {new Date(request.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+              <button
+                onClick={() => showNotificationMessage('New maintenance request form opened!')}
+                className="btn"
+                style={{ marginTop: '1rem', width: '100%' }}
+              >
+                Submit New Request
+              </button>
+            </div>
           </div>
 
           {/* Financial Summary */}
@@ -556,74 +441,55 @@ export default function Dashboard() {
             background: 'white',
             padding: '1.5rem',
             borderRadius: '10px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid #dee2e6'
           }}>
-            <h3 style={{ color: '#003366', marginTop: 0, marginBottom: '1rem' }}>
-              💰 Levy Payments & Fees
+            <h3 style={{ color: '#0070f3', marginTop: 0, marginBottom: '1rem' }}>
+              💰 Strata Levies & Payments
             </h3>
-            {userPayments.length > 0 ? (
-              <div>
-                {userPayments.map(payment => (
-                  <div key={payment.id} style={{
-                    padding: '1rem',
-                    margin: '0.5rem 0',
-                    border: '1px solid #eee',
-                    borderRadius: '6px',
-                    borderLeft: `4px solid ${getStatusColor(payment.status)}`
-                  }}>
-                    <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
-                      {payment.description || payment.reference}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                      Amount: <strong>{formatCurrency(payment.amount)}</strong> • 
-                      Status: <span style={getStatusBadgeStyle(payment.status)}>
-                        {payment.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#999' }}>
-                      Due: {new Date(payment.due_date).toLocaleDateString()}
-                      {payment.payment_date && (
-                        <span> • Paid: {new Date(payment.payment_date).toLocaleDateString()}</span>
-                      )}
-                    </div>
+            <div>
+              {demoPayments.map(payment => (
+                <div key={payment.id} style={{
+                  padding: '1rem',
+                  margin: '0.5rem 0',
+                  border: '1px solid #eee',
+                  borderRadius: '6px',
+                  borderLeft: `4px solid ${getStatusColor(payment.status)}`
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
+                    {payment.description || payment.reference}
                   </div>
-                ))}
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                  <button
-                    onClick={() => showNotification('Payment portal opened!')}
-                    style={{
-                      background: '#28a745',
-                      color: 'white',
-                      border: 'none',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      flex: 1
-                    }}
-                  >
-                    Make Payment
-                  </button>
-                  <button
-                    onClick={() => showNotification('Payment history downloaded!')}
-                    style={{
-                      background: '#6c757d',
-                      color: 'white',
-                      border: 'none',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      flex: 1
-                    }}
-                  >
-                    View History
-                  </button>
+                  <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                    Amount: <strong>{formatCurrency(payment.amount)}</strong> • 
+                    Status: <span style={getStatusBadgeStyle(payment.status)}>
+                      {payment.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#999' }}>
+                    Due: {new Date(payment.due_date).toLocaleDateString()}
+                    {payment.payment_date && (
+                      <span> • Paid: {new Date(payment.payment_date).toLocaleDateString()}</span>
+                    )}
+                  </div>
                 </div>
+              ))}
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => showNotificationMessage('Payment portal opened!')}
+                  className="btn"
+                  style={{ flex: 1, minWidth: '120px' }}
+                >
+                  Make Payment
+                </button>
+                <button
+                  onClick={() => showNotificationMessage('Payment history downloaded!')}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, minWidth: '120px' }}
+                >
+                  View History
+                </button>
               </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-                <p>No payment records found.</p>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -633,14 +499,15 @@ export default function Dashboard() {
           padding: '1.5rem',
           borderRadius: '10px',
           marginTop: '2rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: '1px solid #dee2e6'
         }}>
-          <h3 style={{ color: '#003366', marginTop: 0, marginBottom: '1rem' }}>
+          <h3 style={{ color: '#0070f3', marginTop: 0, marginBottom: '1rem' }}>
             🔧 Cookie Technical Implementation
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
             <div>
-              <h4 style={{ marginBottom: '1rem' }}>Session Cookie (strata_user)</h4>
+              <h4 style={{ marginBottom: '1rem', color: '#333' }}>Session Cookie (oceanview_user)</h4>
               <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.6' }}>
                 <li>Stores user ID, name, unit information</li>
                 <li>Includes unique session ID for tracking</li>
@@ -651,7 +518,7 @@ export default function Dashboard() {
             </div>
             
             <div>
-              <h4 style={{ marginBottom: '1rem' }}>Preferences Cookie (strata_preferences)</h4>
+              <h4 style={{ marginBottom: '1rem', color: '#333' }}>Preferences Cookie (oceanview_preferences)</h4>
               <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', lineHeight: '1.6' }}>
                 <li>Theme, language, layout settings</li>
                 <li>Notification preferences</li>
@@ -662,7 +529,7 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <div style={{ marginTop: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '6px' }}>
+          <div style={{ marginTop: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
             <strong>Security Features:</strong>
             <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <div>✅ HTTPS-only transmission</div>
@@ -672,6 +539,57 @@ export default function Dashboard() {
               <div>✅ Activity-based timeout</div>
               <div>✅ Secure cookie flags</div>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Links to Other Pages */}
+        <div style={{
+          background: 'white',
+          padding: '1.5rem',
+          borderRadius: '10px',
+          marginTop: '2rem',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          border: '1px solid #dee2e6'
+        }}>
+          <h3 style={{ color: '#0070f3', marginTop: 0, marginBottom: '1rem' }}>
+            🏢 Oceanview Apartments Portal
+          </h3>
+          <p style={{ marginBottom: '1rem', color: '#666' }}>
+            Explore other sections of your strata management portal:
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <button
+              onClick={() => router.push('/maintenance')}
+              className="btn"
+              style={{ padding: '1rem', textAlign: 'left' }}
+            >
+              🔧 Maintenance<br />
+              <small style={{ opacity: 0.8 }}>Submit and track requests</small>
+            </button>
+            <button
+              onClick={() => router.push('/levies')}
+              className="btn"
+              style={{ padding: '1rem', textAlign: 'left' }}
+            >
+              💰 Levies<br />
+              <small style={{ opacity: 0.8 }}>View payments and invoices</small>
+            </button>
+            <button
+              onClick={() => router.push('/documents')}
+              className="btn"
+              style={{ padding: '1rem', textAlign: 'left' }}
+            >
+              📄 Documents<br />
+              <small style={{ opacity: 0.8 }}>Access important files</small>
+            </button>
+            <button
+              onClick={() => router.push('/contact')}
+              className="btn"
+              style={{ padding: '1rem', textAlign: 'left' }}
+            >
+              📞 Contact<br />
+              <small style={{ opacity: 0.8 }}>Get in touch with management</small>
+            </button>
           </div>
         </div>
       </div>
