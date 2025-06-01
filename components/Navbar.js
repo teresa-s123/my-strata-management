@@ -1,11 +1,22 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import styles from './Navbar.module.css';
-import { useState } from 'react';
+import { isLoggedIn, getUserSession } from '../lib/cookies';
 
 export default function Navbar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check login status when component mounts or route changes
+    if (isLoggedIn()) {
+      setUser(getUserSession());
+    } else {
+      setUser(null);
+    }
+  }, [router.pathname]);
 
   return (
     <nav className={styles.navbar}>
@@ -13,9 +24,8 @@ export default function Navbar() {
         <Link href="/" className={styles.logo}>
           <span>Oceanview Apartments</span>
         </Link>
-
-        <button 
-          className={styles.hamburger} 
+        <button
+          className={styles.hamburger}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle navigation"
         >
@@ -23,7 +33,6 @@ export default function Navbar() {
           <span></span>
           <span></span>
         </button>
-
         <div className={`${styles.navMenu} ${isOpen ? styles.active : ''}`}>
           <ul>
             <li>
@@ -61,6 +70,21 @@ export default function Navbar() {
                 Contact
               </Link>
             </li>
+            
+            {/* Cookie Authentication Links */}
+            {user ? (
+              <li>
+                <Link href="/dashboard" className={router.pathname === '/dashboard' ? styles.active : ''}>
+                  Dashboard ({user.unitNumber})
+                </Link>
+              </li>
+            ) : (
+              <li>
+                <Link href="/login" className={router.pathname === '/login' ? styles.active : ''}>
+                  Login 🍪
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
