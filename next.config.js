@@ -10,19 +10,6 @@ const nextConfig = {
             key: "X-Content-Type-Options",
             value: "nosniff",
           },
-          // Additional security headers for cookie functionality
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
         ],
       },
     ];
@@ -35,17 +22,6 @@ const nextConfig = {
         source: "/maintenance-request",
         destination: "/maintenance",
         permanent: true,
-      },
-      // Additional redirects for cookie demo
-      {
-        source: "/signin",
-        destination: "/login",
-        permanent: false,
-      },
-      {
-        source: "/profile",
-        destination: "/dashboard",
-        permanent: false,
       },
     ];
   },
@@ -64,69 +40,15 @@ const nextConfig = {
   // React configuration
   reactStrictMode: true,
 
-  // Environment variables - preserving and extending your existing configuration
+  // Environment variables - preserving your existing configuration
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
-    // Cookie-related environment variables
-    COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || "localhost",
-    SESSION_TIMEOUT: process.env.SESSION_TIMEOUT || "1800000", // 30 minutes
-    SECURE_COOKIES: process.env.NODE_ENV === "production" ? "true" : "false",
   },
 
-  // FIXED: Updated experimental configuration for Next.js 15
+  // Experimental features - correct for Next.js 14
   experimental: {
-    // Remove the deprecated serverComponentsExternalPackages
-    // It's now handled automatically or use serverExternalPackages if needed
+    serverComponentsExternalPackages: [],
   },
-
-  // NEW: Use serverExternalPackages instead (if you need it)
-  serverExternalPackages: [
-    // Add any packages that should be external to the server bundle
-    // Leave empty for most applications
-  ],
-
-  // Image optimization settings
-  images: {
-    domains: [],
-    // Enable for static export if needed
-    // unoptimized: true,
-  },
-
-  // Webpack configuration for cookie functionality
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Ensure client-side code works properly
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    
-    return config;
-  },
-
-  // Compiler options
-  compiler: {
-    // Remove console logs in production
-    removeConsole: process.env.NODE_ENV === "production",
-  },
-
-  // PoweredByHeader
-  poweredByHeader: false,
-
-  // Compression
-  compress: true,
-
-  // Generate ETags for pages
-  generateEtags: true,
-
-  // Page extensions
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-
-  // Trailing slash configuration
-  trailingSlash: false,
 };
 
 module.exports = nextConfig;
