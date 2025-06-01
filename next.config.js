@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Security headers
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   async headers() {
     return [
       {
@@ -14,8 +14,6 @@ const nextConfig = {
       },
     ];
   },
-
-  // Redirects
   async redirects() {
     return [
       {
@@ -25,29 +23,23 @@ const nextConfig = {
       },
     ];
   },
-
-  // Rewrites
   async rewrites() {
     return [
+      // Allow PHP files to be served alongside Next.js
       {
         source: "/php-maintenance",
         destination: "/php-maintenance.html",
       },
     ];
   },
-
-  // React configuration
   reactStrictMode: true,
-
-  // Environment variables
   env: {
     MAINTENANCE_EMAIL: "building@example.com",
   },
-
-  // FIXED: Updated for Next.js 15 - moved serverComponentsExternalPackages to serverExternalPackages
-  serverExternalPackages: [],
-
-  // Remove the experimental section since it's no longer needed
+  // Important: Don't interfere with Vercel's PHP runtime
+  experimental: {
+    // Empty - no experimental features that could break JS code
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
