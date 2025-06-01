@@ -1,3 +1,4 @@
+// components/Navbar.js
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -22,8 +23,9 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
         <Link href="/" className={styles.logo}>
-          <span>Oceanview Apartments</span>
+          <span>🏢 Oceanview Apartments</span>
         </Link>
+        
         <button
           className={styles.hamburger}
           onClick={() => setIsOpen(!isOpen)}
@@ -33,6 +35,7 @@ export default function Navbar() {
           <span></span>
           <span></span>
         </button>
+        
         <div className={`${styles.navMenu} ${isOpen ? styles.active : ''}`}>
           <ul>
             <li>
@@ -56,13 +59,23 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
+              <Link href="/levies" className={router.pathname === '/levies' ? styles.active : ''}>
+                Levies
+              </Link>
+            </li>
+            <li>
               <Link href="/budgets" className={router.pathname === '/budgets' ? styles.active : ''}>
                 Budgets
               </Link>
             </li>
             <li>
-              <Link href="/levies" className={router.pathname === '/levies' ? styles.active : ''}>
-                Levies
+              <Link href="/search" className={router.pathname === '/search' ? styles.active : ''}>
+                Search
+              </Link>
+            </li>
+            <li>
+              <Link href="/reports" className={router.pathname === '/reports' ? styles.active : ''}>
+                Reports
               </Link>
             </li>
             <li>
